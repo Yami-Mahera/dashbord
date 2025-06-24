@@ -1,53 +1,79 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { Provider } from "react-redux";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { store } from "./store/store";
+import { useSelector, useDispatch } from "react-redux";
+import { initializeAuth } from "./store/slices/authSlice";
+import { Toaster } from "./components/ui/toaster";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Components
+import Layout from "./components/Layout/Layout";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Suppliers from "./pages/Suppliers";
+import Articles from "./pages/Articles";
+import Orders from "./pages/Orders";
+import Alerts from "./pages/Alerts";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useSelector(state => state.auth);
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Auth Route component (redirect to dashboard if already authenticated)
+const AuthRoute = ({ children }) => {
+  const { isAuthenticated } = useSelector(state => state.auth);
+  return !isAuthenticated ? children : <Navigate to="/" replace />;
+};
+
+const AppContent = () => {
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    helloWorldApi();
-  }, []);
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              <AuthRoute>
+                <Login />
+              </AuthRoute>
+            }
+          />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="suppliers/*" element={<Suppliers />} />
+            <Route path="articles/*" element={<Articles />} />
+            <Route path="orders/*" element={<Orders />} />
+            <Route path="alerts" element={<Alerts />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+      <Toaster />
     </div>
   );
 };
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
   );
 }
 
