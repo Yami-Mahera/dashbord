@@ -272,5 +272,6 @@ if __name__ == "__main__":
     dashboard_tests.addTest(TestBackendAPI('test_dashboard_activities_endpoint'))
     dashboard_tests.addTest(TestBackendAPI('test_dashboard_alerts_endpoint'))
     dashboard_tests.addTest(TestBackendAPI('test_dashboard_suppliers_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_french_localization'))
     
     unittest.TextTestRunner().run(dashboard_tests)
