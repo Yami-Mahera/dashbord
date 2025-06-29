@@ -144,7 +144,7 @@ export const dashboardAPI = {
     // Critical alerts
     const criticalAlerts = mockAlerts.filter(alert => 
       alert.priority === 'critical' && !alert.read
-    );
+    ) as Alert[];
     
     // Top suppliers with additional metrics
     const topSuppliers = mockSuppliers
