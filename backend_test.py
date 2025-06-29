@@ -287,6 +287,70 @@ class TestBackendAPI(unittest.TestCase):
             print(f"  {endpoint}: {response_time:.3f}s")
         
         print("✅ API response time test passed")
+        
+    def test_data_validation(self):
+        """Test that the data returned by the API is within realistic ranges"""
+        print("\nData Validation Test:")
+        print("---------------------")
+        
+        # Test KPIs
+        response = requests.get(f"{API_URL}/dashboard/kpis")
+        self.assertEqual(response.status_code, 200)
+        kpis = response.json()
+        
+        # Check KPI ranges
+        self.assertTrue(0 <= kpis["totalOrders"] <= 1000, f"totalOrders out of range: {kpis['totalOrders']}")
+        self.assertTrue(0 <= kpis["pendingOrders"] <= kpis["totalOrders"], f"pendingOrders out of range: {kpis['pendingOrders']}")
+        self.assertTrue(0 <= kpis["totalSuppliers"] <= 100, f"totalSuppliers out of range: {kpis['totalSuppliers']}")
+        self.assertTrue(0 <= kpis["lowStockItems"] <= 50, f"lowStockItems out of range: {kpis['lowStockItems']}")
+        self.assertTrue(0 <= kpis["averageDeliveryTime"] <= 30, f"averageDeliveryTime out of range: {kpis['averageDeliveryTime']}")
+        self.assertTrue(0 <= kpis["serviceLevel"] <= 100, f"serviceLevel out of range: {kpis['serviceLevel']}")
+        self.assertTrue(0 <= kpis["costSavings"] <= 1000000, f"costSavings out of range: {kpis['costSavings']}")
+        self.assertTrue(0 <= kpis["onTimeDelivery"] <= 100, f"onTimeDelivery out of range: {kpis['onTimeDelivery']}")
+        
+        print("  ✓ KPI values are within realistic ranges")
+        
+        # Test supplier performance
+        response = requests.get(f"{API_URL}/dashboard/charts/supplier_performance")
+        self.assertEqual(response.status_code, 200)
+        suppliers = response.json()["data"]
+        
+        for supplier in suppliers:
+            self.assertTrue(0 <= supplier["onTimeDelivery"] <= 100, f"onTimeDelivery out of range: {supplier['onTimeDelivery']}")
+            self.assertTrue(0 <= supplier["qualityScore"] <= 100, f"qualityScore out of range: {supplier['qualityScore']}")
+            self.assertTrue(0 <= supplier["costEfficiency"] <= 100, f"costEfficiency out of range: {supplier['costEfficiency']}")
+            self.assertTrue(0 <= supplier["totalOrders"] <= 1000, f"totalOrders out of range: {supplier['totalOrders']}")
+            self.assertIn(supplier["reliability"], ["excellent", "good", "needs_improvement"], f"Invalid reliability value: {supplier['reliability']}")
+        
+        print("  ✓ Supplier performance values are within realistic ranges")
+        
+        # Test stock levels
+        response = requests.get(f"{API_URL}/dashboard/charts/stock_levels")
+        self.assertEqual(response.status_code, 200)
+        stock_items = response.json()["data"]
+        
+        for item in stock_items:
+            self.assertTrue(0 <= item["current"], f"Current stock out of range: {item['current']}")
+            self.assertTrue(0 <= item["min"], f"Min stock out of range: {item['min']}")
+            self.assertTrue(item["min"] <= item["max"], f"Min stock greater than max: {item['min']} > {item['max']}")
+            self.assertTrue(item["min"] <= item["optimal"] <= item["max"], f"Optimal stock out of range: {item['optimal']}")
+            self.assertIn(item["status"], ["critical", "warning", "good"], f"Invalid stock status: {item['status']}")
+        
+        print("  ✓ Stock level values are within realistic ranges")
+        
+        # Test cost analysis
+        response = requests.get(f"{API_URL}/dashboard/charts/cost_analysis")
+        self.assertEqual(response.status_code, 200)
+        cost_items = response.json()["data"]
+        
+        for item in cost_items:
+            self.assertTrue(0 <= item["budget"], f"Budget out of range: {item['budget']}")
+            self.assertTrue(0 <= item["spent"], f"Spent amount out of range: {item['spent']}")
+            self.assertTrue(0 <= item["forecast"], f"Forecast amount out of range: {item['forecast']}")
+        
+        print("  ✓ Cost analysis values are within realistic ranges")
+        
+        print("✅ Data validation test passed")
 
 if __name__ == "__main__":
     # Run the basic API tests first
