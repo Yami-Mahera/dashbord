@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { store } from "./store/store";
+import { store, RootState } from "./store/store";
 import { useSelector, useDispatch } from "react-redux";
 import { initializeAuth } from "./store/slices/authSlice";
 import { Toaster } from "./components/ui/toaster";
@@ -16,16 +16,21 @@ import Articles from "./pages/Articles";
 import Orders from "./pages/Orders";
 import Alerts from "./pages/Alerts";
 
+// Types
+interface RouteComponentProps {
+  children: React.ReactNode;
+}
+
 // Protected Route component
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector(state => state.auth);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+const ProtectedRoute: React.FC<RouteComponentProps> = ({ children }) => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 // Auth Route component (redirect to dashboard if already authenticated)
-const AuthRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector(state => state.auth);
-  return !isAuthenticated ? children : <Navigate to="/" replace />;
+const AuthRoute: React.FC<RouteComponentProps> = ({ children }) => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 };
 
 const AppContent = () => {
