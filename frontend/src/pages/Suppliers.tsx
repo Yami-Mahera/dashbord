@@ -275,7 +275,7 @@ const SuppliersPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <AnimatePresence>
           {suppliers.map((supplier) => {
-            const performance = getPerformanceTrend(supplier.onTimeDeliveryRate);
+            const performance = getPerformanceTrend(supplier.onTimeDeliveryRate || 0);
             const TrendIcon = performance.icon;
             
             return (
@@ -345,9 +345,9 @@ const SuppliersPage = () => {
                     {/* Rating */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        {getRatingStars(supplier.rating)}
+                        {getRatingStars(supplier.rating || 0)}
                         <span className="ml-2 text-sm text-gray-600">
-                          {supplier.rating.toFixed(1)}
+                          {(supplier.rating || 0).toFixed(1)}
                         </span>
                       </div>
                       <div className={`flex items-center ${performance.color}`}>
@@ -359,11 +359,11 @@ const SuppliersPage = () => {
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                       <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900">{supplier.totalOrders}</div>
+                        <div className="text-lg font-semibold text-gray-900">{supplier.totalOrders || 0}</div>
                         <div className="text-xs text-gray-500">Commandes</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900">{supplier.onTimeDeliveryRate}%</div>
+                        <div className="text-lg font-semibold text-gray-900">{supplier.onTimeDeliveryRate || 0}%</div>
                         <div className="text-xs text-gray-500">Ponctualité</div>
                       </div>
                     </div>
@@ -372,7 +372,7 @@ const SuppliersPage = () => {
                     <div className="flex items-center justify-between pt-2 border-t">
                       <span className="text-sm text-gray-600">Montant total</span>
                       <span className="font-semibold text-gray-900">
-                        {(supplier.totalAmount / 1000).toFixed(0)}k€
+                        {((supplier.totalAmount || 0) / 1000).toFixed(0)}k€
                       </span>
                     </div>
                   </CardContent>
