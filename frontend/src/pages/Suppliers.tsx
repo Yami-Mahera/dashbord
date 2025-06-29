@@ -35,17 +35,17 @@ import { Supplier } from '../types/supplier.types';
 import { RootState, AppDispatch } from '../store/store';
 
 const SuppliersPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   
-  const { suppliers, isLoading, filters } = useSelector(state => state.suppliers);
+  const { suppliers, isLoading, filters } = useSelector((state: RootState) => state.suppliers);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);  
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     code: '',
