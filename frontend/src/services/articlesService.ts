@@ -1,12 +1,30 @@
 import { mockArticles } from "./mockData";
+import { Article } from "../types";
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-let articlesData = [...mockArticles];
-let nextId = Math.max(...articlesData.map(a => a.id)) + 1;
+interface ArticleFilters {
+  search?: string;
+  category?: string;
+  supplier?: string;
+  lowStock?: boolean;
+  reorderNeeded?: boolean;
+  isActive?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}
+
+interface ArticleData extends Article {
+  [key: string]: any;
+}
+
+let articlesData: ArticleData[] = [...mockArticles as ArticleData[]];
+let nextId = Math.max(...articlesData.map(a => Number(a.id))) + 1;
 
 export const articlesAPI = {
-  async getAll(filters = {}) {
+  async getAll(filters: ArticleFilters = {}) {
     await delay(800);
     
     let filteredArticles = [...articlesData];
@@ -16,9 +34,9 @@ export const articlesAPI = {
       const searchTerm = filters.search.toLowerCase();
       filteredArticles = filteredArticles.filter(article =>
         article.name.toLowerCase().includes(searchTerm) ||
-        article.reference.toLowerCase().includes(searchTerm) ||
-        article.description.toLowerCase().includes(searchTerm) ||
-        article.category.toLowerCase().includes(searchTerm)
+        (article as any).reference?.toLowerCase().includes(searchTerm) ||
+        article.category.toLowerCase().includes(searchTerm) ||
+        (article as any).description?.toLowerCase().includes(searchTerm)
       );
     }
     
@@ -30,7 +48,7 @@ export const articlesAPI = {
     
     if (filters.supplier && filters.supplier !== 'all') {
       filteredArticles = filteredArticles.filter(article =>
-        article.supplier.id === parseInt(filters.supplier)
+        (article as any).supplier?.id === parseInt(filters.supplier!)
       );
     }
     
@@ -48,20 +66,20 @@ export const articlesAPI = {
     
     if (filters.isActive !== undefined) {
       filteredArticles = filteredArticles.filter(article =>
-        article.isActive === filters.isActive
+        (article as any).isActive === filters.isActive
       );
     }
 
     // Sorting
     if (filters.sortBy) {
       filteredArticles.sort((a, b) => {
-        let aVal = a[filters.sortBy];
-        let bVal = b[filters.sortBy];
+        let aVal = (a as any)[filters.sortBy!];
+        let bVal = (b as any)[filters.sortBy!];
         
         // Handle nested properties
         if (filters.sortBy === 'supplier.name') {
-          aVal = a.supplier.name;
-          bVal = b.supplier.name;
+          aVal = (a as any).supplier?.name;
+          bVal = (b as any).supplier?.name;
         }
         
         if (filters.sortOrder === 'desc') {
@@ -80,222 +98,214 @@ export const articlesAPI = {
     const paginatedArticles = filteredArticles.slice(startIndex, endIndex);
     
     // Get categories and low stock alerts
-    const categories = [...new Set(articlesData.map(a => a.category))];
+    const categories = Array.from(new Set(articlesData.map(a => a.category)));
     const lowStockAlerts = articlesData.filter(a => a.currentStock <= a.minStock);
     
     return {
-      data: paginatedArticles,
-      pagination: {
-        page,
-        limit,
-        total: filteredArticles.length,
-        totalPages: Math.ceil(filteredArticles.length / limit)
-      },
+      articles: paginatedArticles,
+      total: filteredArticles.length,
+      page,
+      limit,
+      totalPages: Math.ceil(filteredArticles.length / limit),
       categories,
-      lowStockAlerts,
-      stats: {
-        total: articlesData.length,
-        active: articlesData.filter(a => a.isActive).length,
-        lowStock: lowStockAlerts.length,
-        reorderNeeded: articlesData.filter(a => a.currentStock <= a.reorderPoint).length,
-        totalStockValue: articlesData.reduce((sum, a) => sum + a.stockValue, 0)
+      lowStockCount: lowStockAlerts.length,
+      reorderCount: articlesData.filter(a => a.currentStock <= a.reorderPoint).length,
+      totalStockValue: articlesData.reduce((sum, a) => sum + a.stockValue, 0),
+      avgStockRotation: articlesData.reduce((sum, a) => sum + a.stockRotation, 0) / articlesData.length,
+      statistics: {
+        byCategory: categories.reduce((acc: Record<string, number>, cat) => {
+          acc[cat] = articlesData.filter(a => a.category === cat).length;
+          return acc;
+        }, {}),
+        stockStatus: {
+          normal: articlesData.filter(a => a.currentStock > a.reorderPoint).length,
+          lowStock: lowStockAlerts.length,
+          reorderNeeded: articlesData.filter(a => a.currentStock <= a.reorderPoint).length
+        }
       }
     };
   },
 
-  async getById(id) {
+  async getById(id: string | number) {
     await delay(500);
     
-    const article = articlesData.find(a => a.id === parseInt(id));
+    const article = articlesData.find(a => a.id === Number(id));
     if (!article) {
-      throw new Error("Article non trouvé");
+      throw new Error('Article not found');
     }
     
     return article;
   },
 
-  async create(articleData) {
+  async create(articleData: Partial<ArticleData>) {
     await delay(1000);
     
     // Validate required fields
-    if (!articleData.reference || !articleData.name || !articleData.category) {
-      throw new Error("Référence, nom et catégorie sont obligatoires");
+    if (!articleData.name || !articleData.category) {
+      throw new Error('Name and category are required');
     }
     
-    // Check if reference already exists
-    if (articlesData.some(a => a.reference === articleData.reference)) {
-      throw new Error("Cette référence existe déjà");
-    }
-    
-    const newArticle = {
+    const newArticle: ArticleData = {
       id: nextId++,
-      ...articleData,
+      name: articleData.name,
+      category: articleData.category,
       currentStock: articleData.currentStock || 0,
-      stockValue: (articleData.currentStock || 0) * (articleData.price || 0),
-      averageConsumption: 0,
-      stockRotation: 0,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      variants: articleData.variants || [],
-      documents: articleData.documents || []
+      minStock: articleData.minStock || 10,
+      maxStock: articleData.maxStock || 100,
+      reorderPoint: articleData.reorderPoint || 20,
+      stockRotation: articleData.stockRotation || 0,
+      stockValue: articleData.stockValue || 0,
+      averageConsumption: articleData.averageConsumption || 1,
+      ...articleData
     };
     
-    articlesData.push(newArticle);
+    articlesData.unshift(newArticle);
+    
     return newArticle;
   },
 
-  async update(id, articleData) {
+  async update(id: string | number, articleData: Partial<ArticleData>) {
     await delay(800);
     
-    const index = articlesData.findIndex(a => a.id === parseInt(id));
+    const index = articlesData.findIndex(a => a.id === Number(id));
     if (index === -1) {
-      throw new Error("Article non trouvé");
+      throw new Error('Article not found');
     }
     
-    // Check if reference already exists (excluding current article)
-    if (articleData.reference && articlesData.some(a => a.reference === articleData.reference && a.id !== parseInt(id))) {
-      throw new Error("Cette référence existe déjà");
+    // Validate required fields
+    if (articleData.name === '' || articleData.category === '') {
+      throw new Error('Name and category cannot be empty');
     }
-    
-    const updatedArticle = {
-      ...articlesData[index],
-      ...articleData,
-      stockValue: (articleData.currentStock || articlesData[index].currentStock) * (articleData.price || articlesData[index].price),
-      lastUpdated: new Date().toISOString()
-    };
-    
-    articlesData[index] = updatedArticle;
-    return updatedArticle;
-  },
-
-  async delete(id) {
-    await delay(600);
-    
-    const index = articlesData.findIndex(a => a.id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Article non trouvé");
-    }
-    
-    // Check if article has pending orders
-    const hasPendingOrders = false; // Mock check
-    
-    if (hasPendingOrders) {
-      throw new Error("Impossible de supprimer un article avec des commandes en cours");
-    }
-    
-    articlesData.splice(index, 1);
-    return { success: true };
-  },
-
-  async updateStock(id, newStock, reason = '') {
-    await delay(500);
-    
-    const index = articlesData.findIndex(a => a.id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Article non trouvé");
-    }
-    
-    const article = articlesData[index];
-    const previousStock = article.currentStock;
     
     articlesData[index] = {
-      ...article,
-      currentStock: newStock,
-      stockValue: newStock * article.price,
-      lastUpdated: new Date().toISOString()
+      ...articlesData[index],
+      ...articleData,
+      id: Number(id) // Preserve ID
     };
     
-    // Log stock movement (in a real app, this would be stored in a movements table)
-    const stockMovement = {
+    return articlesData[index];
+  },
+
+  async delete(id: string | number) {
+    await delay(600);
+    
+    const index = articlesData.findIndex(a => a.id === Number(id));
+    if (index === -1) {
+      throw new Error('Article not found');
+    }
+    
+    // Check if article has dependencies (orders, etc.)
+    const hasOrders = Math.random() > 0.7; // Mock dependency check
+    if (hasOrders) {
+      throw new Error('Cannot delete article with existing orders');
+    }
+    
+    const deletedArticle = articlesData.splice(index, 1)[0];
+    
+    return { success: true, article: deletedArticle };
+  },
+
+  async updateStock(id: string | number, newStock: number, reason = '') {
+    await delay(500);
+    
+    const index = articlesData.findIndex(a => a.id === Number(id));
+    if (index === -1) {
+      throw new Error('Article not found');
+    }
+    
+    if (newStock < 0) {
+      throw new Error('Stock cannot be negative');
+    }
+    
+    const oldStock = articlesData[index].currentStock;
+    articlesData[index].currentStock = newStock;
+    
+    // Create stock movement record (mock)
+    const movement = {
       id: Date.now(),
       articleId: id,
-      previousStock,
-      newStock,
-      movement: newStock - previousStock,
-      reason,
-      timestamp: new Date().toISOString()
+      type: newStock > oldStock ? 'in' : 'out',
+      quantity: Math.abs(newStock - oldStock),
+      reason: reason || 'Manual adjustment',
+      timestamp: new Date().toISOString(),
+      user: 'Current User' // Mock user
     };
     
     return {
       article: articlesData[index],
-      movement: stockMovement
+      movement,
+      alert: newStock <= articlesData[index].minStock ? 'Low stock alert' : null
     };
   },
 
-  async getStockMovements(articleId, period = '1month') {
+  async getStockMovements(articleId: string | number, period = '1month') {
     await delay(600);
     
     // Mock stock movements
-    const movements = [
-      {
-        id: 1,
-        date: '2024-01-18T10:00:00Z',
-        type: 'purchase',
-        quantity: 10,
-        reference: 'PO-2024-001',
-        reason: 'Réception commande'
-      },
-      {
-        id: 2,
-        date: '2024-01-15T14:30:00Z',
-        type: 'consumption',
-        quantity: -5,
-        reference: 'CONS-2024-005',
-        reason: 'Consommation production'
-      },
-      {
-        id: 3,
-        date: '2024-01-12T09:15:00Z',
-        type: 'adjustment',
-        quantity: -2,
-        reference: 'ADJ-2024-003',
-        reason: 'Ajustement inventaire'
-      }
-    ];
+    const movements = Array.from({ length: 20 }, (_, i) => ({
+      id: i + 1,
+      articleId,
+      type: Math.random() > 0.5 ? 'in' : 'out',
+      quantity: Math.floor(Math.random() * 50) + 1,
+      reason: ['Purchase order', 'Sale', 'Adjustment', 'Transfer', 'Return'][Math.floor(Math.random() * 5)],
+      timestamp: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString(),
+      user: ['John Doe', 'Jane Smith', 'Bob Johnson'][Math.floor(Math.random() * 3)],
+      reference: `REF-${1000 + i}`
+    }));
     
     return {
-      articleId: parseInt(articleId),
-      period,
       movements,
+      period,
       summary: {
-        totalIn: movements.filter(m => m.quantity > 0).reduce((sum, m) => sum + m.quantity, 0),
-        totalOut: Math.abs(movements.filter(m => m.quantity < 0).reduce((sum, m) => sum + m.quantity, 0)),
-        netMovement: movements.reduce((sum, m) => sum + m.quantity, 0)
+        totalIn: movements.filter(m => m.type === 'in').reduce((sum, m) => sum + m.quantity, 0),
+        totalOut: movements.filter(m => m.type === 'out').reduce((sum, m) => sum + m.quantity, 0),
+        netChange: movements.reduce((sum, m) => sum + (m.type === 'in' ? m.quantity : -m.quantity), 0)
       }
     };
   },
 
-  async getForecast(articleId, period = '3months') {
+  async getForecast(articleId: string | number, period = '3months') {
     await delay(700);
     
-    const article = articlesData.find(a => a.id === parseInt(articleId));
+    const article = articlesData.find(a => a.id === Number(articleId));
     if (!article) {
-      throw new Error("Article non trouvé");
+      throw new Error('Article not found');
     }
     
-    // Mock forecast data
-    const forecast = {
-      articleId: parseInt(articleId),
-      period,
-      currentStock: article.currentStock,
-      averageConsumption: article.averageConsumption,
-      forecastedConsumption: [
-        { month: 'Fév', consumption: article.averageConsumption * 1.1 },
-        { month: 'Mar', consumption: article.averageConsumption * 0.95 },
-        { month: 'Avr', consumption: article.averageConsumption * 1.05 }
-      ],
-      recommendedOrders: [
-        {
-          suggestedDate: '2024-02-01',
-          quantity: Math.max(article.maxStock - article.currentStock, article.minOrderQuantity),
-          reason: 'Réapprovisionnement préventif'
-        }
-      ],
-      stockOutRisk: article.currentStock <= article.reorderPoint ? 'high' : 'low',
-      optimalOrderQuantity: Math.max(article.maxStock - article.currentStock, article.minOrderQuantity)
-    };
+    // Mock forecasting data
+    const dailyConsumption = article.averageConsumption || 1;
+    const daysInPeriod = period === '1month' ? 30 : period === '3months' ? 90 : 365;
     
-    return forecast;
+    const forecast = Array.from({ length: Math.min(daysInPeriod, 30) }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      
+      const baseConsumption = dailyConsumption;
+      const seasonalVariation = Math.sin((i / 30) * Math.PI) * 0.3; // Mock seasonality
+      const randomVariation = (Math.random() - 0.5) * 0.4;
+      
+      const expectedConsumption = Math.max(0, baseConsumption * (1 + seasonalVariation + randomVariation));
+      const projectedStock = Math.max(0, article.currentStock - (expectedConsumption * (i + 1)));
+      
+      return {
+        date: date.toISOString().split('T')[0],
+        expectedConsumption: Math.round(expectedConsumption * 100) / 100,
+        projectedStock: Math.round(projectedStock),
+        reorderAlert: projectedStock <= article.reorderPoint,
+        stockoutRisk: projectedStock <= 0
+      };
+    });
+    
+    return {
+      articleId,
+      period,
+      forecast,
+      recommendations: {
+        nextReorderDate: forecast.find(f => f.reorderAlert)?.date || null,
+        suggestedOrderQuantity: Math.max(article.maxStock - article.currentStock, 0),
+        stockoutRisk: forecast.some(f => f.stockoutRisk) ? 'high' : 'low',
+        averageDailyConsumption: dailyConsumption
+      }
+    };
   }
 };
