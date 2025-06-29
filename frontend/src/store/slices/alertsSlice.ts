@@ -49,7 +49,7 @@ export const dismissAlert = createAsyncThunk<string, string>(
 );
 
 interface AlertsState {
-  alerts: Alert[];
+  alerts: any[]; // Temporaire
   isLoading: boolean;
   error: string | null;
   unreadCount: number;
