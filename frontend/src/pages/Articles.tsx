@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
@@ -8,14 +8,13 @@ import {
   MoreHorizontal, 
   Edit, 
   Trash2, 
-  AlertTriangle,
   Package,
   TrendingDown,
   TrendingUp,
-  DollarSign,
+  AlertTriangle,
   BarChart3,
   Eye,
-  RefreshCw
+  Download
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
