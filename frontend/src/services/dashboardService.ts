@@ -38,7 +38,7 @@ interface ProcurementInsights {
 }
 
 export const dashboardAPI = {
-  async getDashboardData(dateRange = {}) {
+  async getDashboardData(dateRange: DateRange = {}): Promise<DashboardData> {
     await delay(1000);
     
     // In a real application, you would filter data based on dateRange
