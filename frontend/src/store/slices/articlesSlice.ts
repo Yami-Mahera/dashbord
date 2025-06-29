@@ -94,6 +94,9 @@ const articlesSlice = createSlice({
         article.currentStock = stock;
       }
     },
+    setFilters: (state, action: PayloadAction<Partial<ArticleFilters>>) => {
+      // Note: Les filtres seront gérés par le composant local
+    },
     clearError: (state) => {
       state.error = null;
     },
