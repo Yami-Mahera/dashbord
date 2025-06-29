@@ -314,3 +314,10 @@ if __name__ == "__main__":
     dashboard_tests.addTest(TestBackendAPI('test_french_localization'))
     
     unittest.TextTestRunner().run(dashboard_tests)
+    
+    # Run performance tests
+    print("\n=== Running API Performance Tests ===")
+    performance_tests = unittest.TestSuite()
+    performance_tests.addTest(TestBackendAPI('test_api_response_time'))
+    
+    unittest.TextTestRunner().run(performance_tests)
