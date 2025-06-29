@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -32,15 +32,14 @@ import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import { fetchSuppliers, createSupplier, updateSupplier, deleteSupplier, setFilters } from '../store/slices/suppliersSlice';
 import { Supplier } from '../types/supplier.types';
-import { RootState, AppDispatch } from '../store/store';
 
 const SuppliersPage = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   
-  const { suppliers, isLoading, filters } = useSelector((state: RootState) => state.suppliers);
+  const { suppliers, isLoading, filters } = useAppSelector(state => state.suppliers);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -63,21 +62,20 @@ const SuppliersPage = () => {
       position: '',
       isPrimary: true
     }],
-    paymentTerms: '30 jours',
-    currency: 'EUR',
-    isActive: true
+    payment_terms: 30,
+    delivery_time: 7
   });
 
   useEffect(() => {
     dispatch(fetchSuppliers(filters));
   }, [dispatch, filters]);
 
-  const handleSearch = (value) => {
+  const handleSearch = (value: string) => {
     setSearchTerm(value);
     dispatch(setFilters({ search: value }));
   };
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: string, value: any) => {
     dispatch(setFilters({ [key]: value }));
   };
 
@@ -93,13 +91,14 @@ const SuppliersPage = () => {
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
   };
 
   const handleEditSupplier = async () => {
+    if (!selectedSupplier) return;
     try {
       await dispatch(updateSupplier({ id: selectedSupplier.id, data: formData })).unwrap();
       toast({
@@ -111,13 +110,14 @@ const SuppliersPage = () => {
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
   };
 
   const handleDeleteSupplier = async () => {
+    if (!selectedSupplier) return;
     try {
       await dispatch(deleteSupplier(selectedSupplier.id)).unwrap();
       toast({
@@ -129,7 +129,7 @@ const SuppliersPage = () => {
     } catch (error) {
       toast({
         title: "Erreur", 
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
