@@ -14,7 +14,7 @@ export interface OrderFilters {
 
 export interface OrderItem {
   id: number;
-  articleId: number;
+  articleId?: number; // Rendu optionnel pour compatibilité avec les données mockées
   article: {
     id: number;
     name: string;
