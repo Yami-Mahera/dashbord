@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, Eye, EyeOff, Loader2 } from 'lucide-react';
@@ -11,9 +11,9 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { loginUser, clearError } from '../store/slices/authSlice';
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error } = useSelector(state => state.auth);
+  const { isLoading, error } = useAppSelector(state => state.auth);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -21,7 +21,7 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -32,7 +32,7 @@ const Login = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const result = await dispatch(loginUser(formData)).unwrap();
@@ -50,7 +50,7 @@ const Login = () => {
     { email: 'buyer@company.com', password: 'buyer123', role: 'Acheteur' }
   ];
 
-  const handleDemoLogin = (credentials) => {
+  const handleDemoLogin = (credentials: { email: string; password: string; role: string }) => {
     setFormData(credentials);
   };
 
