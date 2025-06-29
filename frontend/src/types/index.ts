@@ -85,7 +85,7 @@ export interface Alert {
 }
 
 export interface Supplier {
-  id: string;
+  id: string | number;
   name: string;
   category: string;
   isActive: boolean;
