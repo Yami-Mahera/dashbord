@@ -181,7 +181,7 @@ export const dashboardAPI = {
     };
   },
 
-  async getKPIs(period = 'month') {
+  async getKPIs(period: 'month' | 'quarter' | 'year' = 'month'): Promise<KPI> {
     await delay(500);
     
     // Mock KPI calculations based on period
