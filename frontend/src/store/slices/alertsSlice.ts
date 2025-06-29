@@ -128,5 +128,5 @@ const alertsSlice = createSlice({
   },
 });
 
-export const { addAlert, clearError } = alertsSlice.actions;
+export const { addAlert, setFilters, clearError } = alertsSlice.actions;
 export default alertsSlice.reducer;
