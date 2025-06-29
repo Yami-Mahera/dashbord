@@ -162,3 +162,4 @@ const SuppliersList: React.FC<SuppliersListProps> = ({
           </div>
         </CardContent>
       </Card>
+    );
