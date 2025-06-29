@@ -97,7 +97,7 @@ const OrdersPage = () => {
     }
   };
 
-  const getStatusConfig = (status) => {
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case 'en_attente':
         return { 
@@ -132,7 +132,7 @@ const OrdersPage = () => {
     }
   };
 
-  const getPriorityConfig = (priority) => {
+  const getPriorityConfig = (priority: string) => {
     switch (priority) {
       case 'urgent':
         return { label: 'Urgent', color: 'bg-red-100 text-red-800' };
@@ -145,7 +145,7 @@ const OrdersPage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
@@ -153,29 +153,29 @@ const OrdersPage = () => {
     });
   };
 
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR'
     }).format(amount);
   };
 
-  const canValidateOrder = (order) => {
+  const canValidateOrder = (order: OrderData) => {
     return order.status === 'en_attente' && 
-           (user.role === 'gestionnaire' || user.role === 'administrateur');
+           user && (user.role === 'gestionnaire' || user.role === 'administrateur');
   };
 
-  const openDetailsDialog = (order) => {
+  const openDetailsDialog = (order: OrderData) => {
     setSelectedOrder(order);
     setShowDetailsDialog(true);
   };
 
-  const openValidateDialog = (order) => {
+  const openValidateDialog = (order: OrderData) => {
     setSelectedOrder(order);
     setShowValidateDialog(true);
   };
 
-  const openRejectDialog = (order) => {
+  const openRejectDialog = (order: OrderData) => {
     setSelectedOrder(order);
     setShowRejectDialog(true);
   };
