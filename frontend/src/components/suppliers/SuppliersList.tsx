@@ -160,4 +160,5 @@ const SuppliersList: React.FC<SuppliersListProps> = ({
               Réessayer
             </Button>
           </div>
-        </CardContent
+        </CardContent>
+      </Card>
