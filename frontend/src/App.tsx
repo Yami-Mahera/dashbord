@@ -45,6 +45,7 @@ const AppContent: React.FC = () => {
     <div className="App">
       <BrowserRouter>
         <Routes>
+          <Route path="/test-styles" element={<TestStyles />} />
           <Route
             path="/login"
             element={
