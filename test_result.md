@@ -197,6 +197,8 @@ test_plan:
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
+  environment_issues:
+    - "Preview environment unavailable for frontend testing"
 
 agent_communication:
   - agent: "main"
