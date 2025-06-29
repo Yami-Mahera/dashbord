@@ -10,18 +10,69 @@ const actionTypes = {
   UPDATE_TOAST: "UPDATE_TOAST",
   DISMISS_TOAST: "DISMISS_TOAST",
   REMOVE_TOAST: "REMOVE_TOAST"
-}
+} as const
+
+type ActionType = typeof actionTypes[keyof typeof actionTypes]
 
 let count = 0
 
-function genId() {
+function genId(): string {
   count = (count + 1) % Number.MAX_SAFE_INTEGER
   return count.toString();
 }
 
-const toastTimeouts = new Map()
+export interface ToastProps {
+  id?: string
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: React.ReactElement
+  duration?: number
+  onOpenChange?: (open: boolean) => void
+  open?: boolean
+  variant?: 'default' | 'destructive'
+  className?: string
+}
 
-const addToRemoveQueue = (toastId) => {
+export interface Toast extends Required<Pick<ToastProps, 'id'>> {
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: React.ReactElement
+  duration?: number
+  onOpenChange?: (open: boolean) => void
+  open?: boolean
+  variant?: 'default' | 'destructive'
+  className?: string
+}
+
+interface State {
+  toasts: Toast[]
+}
+
+interface AddToastAction {
+  type: 'ADD_TOAST'
+  toast: Toast
+}
+
+interface UpdateToastAction {
+  type: 'UPDATE_TOAST'
+  toast: Partial<Toast> & Pick<Toast, 'id'>
+}
+
+interface DismissToastAction {
+  type: 'DISMISS_TOAST'
+  toastId?: string
+}
+
+interface RemoveToastAction {
+  type: 'REMOVE_TOAST'
+  toastId?: string
+}
+
+type Action = AddToastAction | UpdateToastAction | DismissToastAction | RemoveToastAction
+
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
+
+const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return
   }
@@ -37,7 +88,7 @@ const addToRemoveQueue = (toastId) => {
   toastTimeouts.set(toastId, timeout)
 }
 
-export const reducer = (state, action) => {
+export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
       return {
