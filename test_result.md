@@ -107,15 +107,18 @@ user_problem_statement: "Transform GitHub dashboard code to React TypeScript and
 backend:
   - task: "Basic API endpoints for dashboard data"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
-    priority: "low"
+    stuck_count: 1
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Basic FastAPI backend with MongoDB connection working"
+      - working: false
+        agent: "testing"
+        comment: "Basic API endpoints (/api and /api/status) are working correctly, but the required dashboard-specific endpoints are not implemented. Missing endpoints for KPIs, charts data, activities, alerts, and supplier information that are needed for the dashboard."
 
 frontend:
   - task: "Convert React JS to TypeScript"
