@@ -51,13 +51,17 @@ const AlertsPage = () => {
     dispatch(setFilters({ [key]: value }));
   };
 
-  const handleMarkAsRead = async (alertId) => {
+  const handleMarkAsRead = async (alertId: string) => {
     try {
-      await dispatch(markAsRead(alertId)).unwrap();
+      await dispatch(markAsRead(alertId));
+      toast({
+        title: "Succès",
+        description: "Alerte marquée comme lue",
+      });
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
