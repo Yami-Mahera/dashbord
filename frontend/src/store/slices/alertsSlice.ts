@@ -68,7 +68,7 @@ const alertsSlice = createSlice({
   name: "alerts",
   initialState,
   reducers: {
-    addAlert: (state, action: PayloadAction<Alert>) => {
+    addAlert: (state, action: PayloadAction<any>) => {
       state.alerts.unshift(action.payload);
       if (!action.payload.read) {
         state.unreadCount += 1;
@@ -77,7 +77,7 @@ const alertsSlice = createSlice({
         state.criticalCount += 1;
       }
     },
-    setFilters: (state, action: PayloadAction<Partial<AlertFilters>>) => {
+    setFilters: (state, action: PayloadAction<any>) => {
       // Note: Les filtres seront gérés par le composant local
     },
     clearError: (state) => {
