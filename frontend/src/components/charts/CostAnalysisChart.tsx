@@ -15,16 +15,43 @@ interface CostAnalysisChartProps {
   data: CostAnalysisData[];
 }
 
+// Define types for the pie chart data
+interface PieChartData {
+  name: string;
+  value: number;
+  budget: number;
+  forecast: number;
+  fill: string;
+}
+
+// Define types for the label props
+interface PieLabelProps {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  percent?: number;
+  index?: number;
+  name?: string;
+}
+
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 const CostAnalysisChart: React.FC<CostAnalysisChartProps> = ({ data }) => {
-  const pieData = data.map((item, index) => ({
+  const pieData: PieChartData[] = data.map((item, index) => ({
     name: item.category,
     value: item.spent,
     budget: item.budget,
     forecast: item.forecast,
     fill: COLORS[index % COLORS.length]
   }));
+
+  // Custom label function with proper typing
+  const renderCustomLabel = (props: PieLabelProps) => {
+    const { name, percent } = props;
+    return `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`;
+  };
 
   return (
     <Card>
@@ -46,7 +73,7 @@ const CostAnalysisChart: React.FC<CostAnalysisChartProps> = ({ data }) => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={renderCustomLabel}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
