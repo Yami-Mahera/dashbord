@@ -88,14 +88,14 @@ const articlesSlice = createSlice({
   name: "articles",
   initialState,
   reducers: {
-    updateStock: (state, action: PayloadAction<{ id: string | number; stock: number }>) => {
+    updateStock: (state, action: PayloadAction<any>) => {
       const { id, stock } = action.payload;
-      const article = state.articles.find(a => a.id === id);
+      const article = state.articles.find((a: any) => a.id === id);
       if (article) {
         article.currentStock = stock;
       }
     },
-    setFilters: (state, action: PayloadAction<Partial<ArticleFilters>>) => {
+    setFilters: (state, action: PayloadAction<any>) => {
       // Note: Les filtres seront gérés par le composant local
     },
     clearError: (state) => {
