@@ -57,9 +57,9 @@ export const deleteArticle = createAsyncThunk<any, any>(
 );
 
 interface ArticlesState {
-  articles: Article[];
+  articles: any[]; // Temporaire
   categories: string[];
-  lowStockAlerts: Article[];
+  lowStockAlerts: any[]; // Temporaire
   isLoading: boolean;
   error: string | null;
   pagination: {
