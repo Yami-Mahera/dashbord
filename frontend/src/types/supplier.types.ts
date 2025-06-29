@@ -80,6 +80,7 @@ export interface SupplierFilters {
   search?: string;
   category?: string;
   status?: "active" | "inactive" | "pending";
+  isActive?: boolean;
   city?: string;
   country?: string;
   page?: number;
