@@ -251,6 +251,42 @@ class TestBackendAPI(unittest.TestCase):
             self.assertIn(keyword, activity_text, f"French keyword {keyword} not found in activities")
             
         print("✅ French localization test passed")
+        
+    def test_api_response_time(self):
+        """Test the response time of API endpoints"""
+        import time
+        
+        endpoints = [
+            "/",
+            "/status",
+            "/dashboard/data",
+            "/dashboard/kpis",
+            "/dashboard/charts/orders_trend",
+            "/dashboard/charts/supplier_performance",
+            "/dashboard/charts/cost_analysis",
+            "/dashboard/charts/stock_levels",
+            "/dashboard/activities",
+            "/dashboard/alerts",
+            "/dashboard/suppliers"
+        ]
+        
+        print("\nAPI Response Time Test:")
+        print("------------------------")
+        
+        for endpoint in endpoints:
+            start_time = time.time()
+            response = requests.get(f"{API_URL}{endpoint}")
+            end_time = time.time()
+            
+            response_time = end_time - start_time
+            self.assertTrue(response.status_code == 200, f"Endpoint {endpoint} returned status code {response.status_code}")
+            
+            # Check if response time is under 500ms
+            self.assertTrue(response_time < 0.5, f"Endpoint {endpoint} response time ({response_time:.3f}s) exceeds 500ms")
+            
+            print(f"  {endpoint}: {response_time:.3f}s")
+        
+        print("✅ API response time test passed")
 
 if __name__ == "__main__":
     # Run the basic API tests first
