@@ -234,7 +234,7 @@ export const dashboardAPI = {
       needsAttention: mockSuppliers
         .filter(s => s.onTimeDeliveryRate < 85 || s.qualityRating < 3.5)
         .sort((a, b) => a.onTimeDeliveryRate - b.onTimeDeliveryRate),
-      categoryDistribution: mockSuppliers.reduce((acc, supplier) => {
+      categoryDistribution: mockSuppliers.reduce((acc: Record<string, number>, supplier) => {
         acc[supplier.category] = (acc[supplier.category] || 0) + 1;
         return acc;
       }, {}),
