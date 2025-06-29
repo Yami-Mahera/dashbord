@@ -74,7 +74,7 @@ export interface Activity {
 }
 
 export interface Alert {
-  id: string;
+  id: string | number;
   type: 'stock_low' | 'order_delay' | 'approval_pending' | 'supplier_performance';
   title: string;
   message: string;
