@@ -163,3 +163,8 @@ const SuppliersList: React.FC<SuppliersListProps> = ({
         </CardContent>
       </Card>
     );
+  }
+
+  // Reste du composant (loading, return principal, etc.)
+  return <div>Composant en cours de réparation...</div>;
+};
