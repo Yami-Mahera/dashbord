@@ -31,6 +31,8 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import { fetchSuppliers, createSupplier, updateSupplier, deleteSupplier, setFilters } from '../store/slices/suppliersSlice';
+import { Supplier } from '../types/supplier.types';
+import { RootState, AppDispatch } from '../store/store';
 
 const SuppliersPage = () => {
   const dispatch = useDispatch();
