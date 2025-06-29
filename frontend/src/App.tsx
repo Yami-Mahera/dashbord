@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { store, RootState } from "./store/store";
-import { useSelector, useDispatch } from "react-redux";
+import { store } from "./store/store";
+import { useAppDispatch, useAppSelector } from "./hooks/redux";
 import { initializeAuth } from "./store/slices/authSlice";
 import { Toaster } from "./components/ui/toaster";
 import "./App.css";
@@ -23,18 +23,18 @@ interface RouteComponentProps {
 
 // Protected Route component
 const ProtectedRoute: React.FC<RouteComponentProps> = ({ children }) => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 // Auth Route component (redirect to dashboard if already authenticated)
 const AuthRoute: React.FC<RouteComponentProps> = ({ children }) => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   return !isAuthenticated ? <>{children}</> : <Navigate to="/" replace />;
 };
 
-const AppContent = () => {
-  const dispatch = useDispatch();
+const AppContent: React.FC = () => {
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(initializeAuth());
@@ -74,12 +74,12 @@ const AppContent = () => {
   );
 };
 
-function App() {
+const App: React.FC = () => {
   return (
     <Provider store={store}>
       <AppContent />
     </Provider>
   );
-}
+};
 
 export default App;
