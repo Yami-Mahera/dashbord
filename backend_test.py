@@ -211,6 +211,43 @@ class TestBackendAPI(unittest.TestCase):
             print(f"  ✓ Found {field} in suppliers data")
         
         print("✅ Dashboard suppliers endpoint test passed")
+        
+    def test_french_localization(self):
+        """Test that the API returns French-localized content"""
+        # Test French months in orders trend
+        response = requests.get(f"{API_URL}/dashboard/charts/orders_trend")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        # Check for French month names
+        french_months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jui"]
+        months_in_response = [item["month"] for item in data["data"]]
+        for month in french_months:
+            self.assertIn(month, months_in_response, f"French month {month} not found in response")
+            
+        # Test French categories in cost analysis
+        response = requests.get(f"{API_URL}/dashboard/charts/cost_analysis")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        # Check for French categories
+        french_categories = ["Informatique", "Matériaux", "Logistique", "Services"]
+        categories_in_response = [item["category"] for item in data["data"]]
+        for category in french_categories:
+            self.assertIn(category, categories_in_response, f"French category {category} not found in response")
+            
+        # Test French content in activities
+        response = requests.get(f"{API_URL}/dashboard/activities")
+        self.assertEqual(response.status_code, 200)
+        activities = response.json()
+        
+        # Check for French titles and messages
+        french_keywords = ["Nouvelle", "commande", "Stock", "critique", "Commande", "approuvée", "Livraison", "terminée"]
+        activity_text = " ".join([f"{a['title']} {a['message']}" for a in activities])
+        for keyword in french_keywords:
+            self.assertIn(keyword, activity_text, f"French keyword {keyword} not found in activities")
+            
+        print("✅ French localization test passed")
 
 if __name__ == "__main__":
     # Run the basic API tests first
