@@ -69,15 +69,15 @@ const AlertsPage = () => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await dispatch(markAllAsRead()).unwrap();
+      await dispatch(markAllAsRead());
       toast({
         title: "Succès",
-        description: "Toutes les alertes ont été marquées comme lues",
+        description: "Toutes les alertes marquées comme lues",
       });
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
