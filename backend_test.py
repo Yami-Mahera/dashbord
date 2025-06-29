@@ -70,102 +70,147 @@ class TestBackendAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
         print("✅ Non-existent endpoint test passed")
     
-    # Tests for expected dashboard data endpoints
+    # Tests for dashboard data endpoints
+    
+    def test_dashboard_data_endpoint(self):
+        """Test the complete dashboard data endpoint"""
+        response = requests.get(f"{API_URL}/dashboard/data")
+        print(f"Dashboard data endpoint status: {response.status_code}")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        # Check for expected top-level fields
+        expected_fields = ["kpis", "charts", "recentActivities", "criticalAlerts", "topSuppliers", "lastUpdated"]
+        for field in expected_fields:
+            self.assertIn(field, data)
+            print(f"  ✓ Found {field} in dashboard data")
+        
+        # Check KPIs structure
+        kpi_fields = ["totalOrders", "pendingOrders", "totalSuppliers", "lowStockItems", 
+                      "averageDeliveryTime", "serviceLevel", "costSavings", "onTimeDelivery"]
+        for field in kpi_fields:
+            self.assertIn(field, data["kpis"])
+            print(f"  ✓ Found {field} in KPIs data")
+        
+        # Check charts structure
+        chart_types = ["ordersTrend", "supplierPerformance", "costAnalysis", "stockLevels"]
+        for chart_type in chart_types:
+            self.assertIn(chart_type, data["charts"])
+            self.assertIsInstance(data["charts"][chart_type], list)
+            print(f"  ✓ Found {chart_type} in charts data")
+        
+        print("✅ Dashboard data endpoint test passed")
     
     def test_dashboard_kpis_endpoint(self):
         """Test the dashboard KPIs endpoint"""
         response = requests.get(f"{API_URL}/dashboard/kpis")
         print(f"Dashboard KPIs endpoint status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            # Check for expected KPI fields
-            expected_fields = ["orders", "suppliers", "stock_levels", "delivery_metrics"]
-            for field in expected_fields:
-                if field in data:
-                    print(f"  ✓ Found {field} in KPI data")
-                else:
-                    print(f"  ✗ Missing {field} in KPI data")
-        else:
-            print("  ✗ Dashboard KPIs endpoint not implemented or returning error")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        # Check for expected KPI fields
+        expected_fields = ["totalOrders", "pendingOrders", "totalSuppliers", "lowStockItems", 
+                          "averageDeliveryTime", "serviceLevel", "costSavings", "onTimeDelivery"]
+        for field in expected_fields:
+            self.assertIn(field, data)
+            print(f"  ✓ Found {field} in KPI data")
+        
+        print("✅ Dashboard KPIs endpoint test passed")
     
     def test_dashboard_charts_endpoint(self):
-        """Test the dashboard charts endpoint"""
+        """Test the dashboard charts endpoint for each chart type"""
         chart_types = ["orders_trend", "supplier_performance", "cost_analysis", "stock_levels"]
         
         for chart_type in chart_types:
             response = requests.get(f"{API_URL}/dashboard/charts/{chart_type}")
             print(f"Dashboard {chart_type} chart endpoint status: {response.status_code}")
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, dict) or isinstance(data, list):
-                    print(f"  ✓ {chart_type} chart returns valid data")
-                else:
-                    print(f"  ✗ {chart_type} chart returns invalid data format")
-            else:
-                print(f"  ✗ Dashboard {chart_type} chart endpoint not implemented or returning error")
+            self.assertEqual(response.status_code, 200)
+            data = response.json()
+            
+            # Verify data structure
+            self.assertIn("data", data)
+            self.assertIsInstance(data["data"], list)
+            self.assertTrue(len(data["data"]) > 0, f"Chart data for {chart_type} is empty")
+            
+            # Check specific fields based on chart type
+            if chart_type == "orders_trend":
+                expected_fields = ["month", "orders", "amount", "budget"]
+            elif chart_type == "supplier_performance":
+                expected_fields = ["name", "onTimeDelivery", "qualityScore", "costEfficiency", "totalOrders", "reliability"]
+            elif chart_type == "cost_analysis":
+                expected_fields = ["category", "budget", "spent", "forecast"]
+            elif chart_type == "stock_levels":
+                expected_fields = ["name", "category", "current", "min", "max", "optimal", "status"]
+            
+            for field in expected_fields:
+                self.assertIn(field, data["data"][0])
+                print(f"  ✓ Found {field} in {chart_type} chart data")
+            
+            print(f"✅ Dashboard {chart_type} chart endpoint test passed")
+    
+    def test_invalid_chart_type(self):
+        """Test error handling for invalid chart type"""
+        response = requests.get(f"{API_URL}/dashboard/charts/invalid_type")
+        print(f"Invalid chart type endpoint status: {response.status_code}")
+        self.assertEqual(response.status_code, 200)  # API returns 200 with error message
+        data = response.json()
+        self.assertIn("error", data)
+        print("✅ Invalid chart type test passed")
     
     def test_dashboard_activities_endpoint(self):
         """Test the dashboard activities endpoint"""
         response = requests.get(f"{API_URL}/dashboard/activities")
         print(f"Dashboard activities endpoint status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                if len(data) > 0:
-                    expected_fields = ["id", "type", "description", "timestamp"]
-                    for field in expected_fields:
-                        if field in data[0]:
-                            print(f"  ✓ Found {field} in activities data")
-                        else:
-                            print(f"  ✗ Missing {field} in activities data")
-                else:
-                    print("  ✓ Activities list is empty but valid")
-            else:
-                print("  ✗ Activities endpoint returns invalid data format")
-        else:
-            print("  ✗ Dashboard activities endpoint not implemented or returning error")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertIsInstance(data, list)
+        self.assertTrue(len(data) > 0, "Activities list is empty")
+        
+        # Check for expected fields in activities
+        expected_fields = ["id", "type", "title", "message", "timestamp", "priority", "user"]
+        for field in expected_fields:
+            self.assertIn(field, data[0])
+            print(f"  ✓ Found {field} in activities data")
+        
+        print("✅ Dashboard activities endpoint test passed")
     
     def test_dashboard_alerts_endpoint(self):
         """Test the dashboard alerts endpoint"""
         response = requests.get(f"{API_URL}/dashboard/alerts")
         print(f"Dashboard alerts endpoint status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                if len(data) > 0:
-                    expected_fields = ["id", "severity", "message", "timestamp"]
-                    for field in expected_fields:
-                        if field in data[0]:
-                            print(f"  ✓ Found {field} in alerts data")
-                        else:
-                            print(f"  ✗ Missing {field} in alerts data")
-                else:
-                    print("  ✓ Alerts list is empty but valid")
-            else:
-                print("  ✗ Alerts endpoint returns invalid data format")
-        else:
-            print("  ✗ Dashboard alerts endpoint not implemented or returning error")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertIsInstance(data, list)
+        self.assertTrue(len(data) > 0, "Alerts list is empty")
+        
+        # Check for expected fields in alerts
+        expected_fields = ["id", "type", "title", "message", "priority", "read", "createdAt"]
+        for field in expected_fields:
+            self.assertIn(field, data[0])
+            print(f"  ✓ Found {field} in alerts data")
+        
+        print("✅ Dashboard alerts endpoint test passed")
     
     def test_dashboard_suppliers_endpoint(self):
         """Test the dashboard suppliers endpoint"""
         response = requests.get(f"{API_URL}/dashboard/suppliers")
         print(f"Dashboard suppliers endpoint status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                if len(data) > 0:
-                    expected_fields = ["id", "name", "performance_score", "on_time_delivery_rate", "quality_rating"]
-                    for field in expected_fields:
-                        if field in data[0]:
-                            print(f"  ✓ Found {field} in suppliers data")
-                        else:
-                            print(f"  ✗ Missing {field} in suppliers data")
-                else:
-                    print("  ✓ Suppliers list is empty but valid")
-            else:
-                print("  ✗ Suppliers endpoint returns invalid data format")
-        else:
-            print("  ✗ Dashboard suppliers endpoint not implemented or returning error")
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        
+        self.assertIsInstance(data, list)
+        self.assertTrue(len(data) > 0, "Suppliers list is empty")
+        
+        # Check for expected fields in suppliers
+        expected_fields = ["id", "name", "category", "isActive", "totalOrders", "totalAmount", 
+                          "averageDeliveryTime", "onTimeDeliveryRate", "qualityRating", "performanceScore"]
+        for field in expected_fields:
+            self.assertIn(field, data[0])
+            print(f"  ✓ Found {field} in suppliers data")
+        
+        print("✅ Dashboard suppliers endpoint test passed")
 
 if __name__ == "__main__":
     # Run the basic API tests first
@@ -181,11 +226,14 @@ if __name__ == "__main__":
     
     # Run the dashboard-specific tests
     print("\n=== Running Dashboard API Tests ===")
-    print("Note: These tests check for expected dashboard endpoints that may not be implemented yet")
     
-    test = TestBackendAPI()
-    test.test_dashboard_kpis_endpoint()
-    test.test_dashboard_charts_endpoint()
-    test.test_dashboard_activities_endpoint()
-    test.test_dashboard_alerts_endpoint()
-    test.test_dashboard_suppliers_endpoint()
+    dashboard_tests = unittest.TestSuite()
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_data_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_kpis_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_charts_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_invalid_chart_type'))
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_activities_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_alerts_endpoint'))
+    dashboard_tests.addTest(TestBackendAPI('test_dashboard_suppliers_endpoint'))
+    
+    unittest.TextTestRunner().run(dashboard_tests)
