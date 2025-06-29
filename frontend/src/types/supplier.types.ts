@@ -37,6 +37,16 @@ export interface Supplier {
   createdAt?: string;
   updatedAt?: string;
   status?: "active" | "inactive" | "pending";
+  // Additional properties used in UI
+  isActive?: boolean;
+  rating?: number;
+  totalOrders?: number;
+  totalAmount?: number;
+  onTimeDeliveryRate?: number;
+  qualityRating?: number;
+  performanceScore?: number;
+  paymentTerms?: string;
+  currency?: string;
 }
 
 // Type pour la création d'un fournisseur (certains champs optionnels)
