@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { 
   ShoppingCart, 
@@ -19,7 +18,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { fetchDashboardData } from '../store/slices/dashboardSlice';
+
+// Nouveaux composants de graphiques
+import OrdersTrendChart from '../components/charts/OrdersTrendChart';
+import SupplierPerformanceChart from '../components/charts/SupplierPerformanceChart';
+import CostAnalysisChart from '../components/charts/CostAnalysisChart';
+import StockLevelsChart from '../components/charts/StockLevelsChart';
+import SuppliersTable from '../components/tables/SuppliersTable';
+
+// Types
+import { KPICardProps } from '../types';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
