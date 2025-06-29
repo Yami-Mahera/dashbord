@@ -153,14 +153,13 @@ const SuppliersPage = () => {
         position: '',
         isPrimary: true
       }],
-      paymentTerms: '30 jours',
-      currency: 'EUR',
-      isActive: true
+      payment_terms: 30,
+      delivery_time: 7
     });
     setSelectedSupplier(null);
   };
 
-  const openEditDialog = (supplier) => {
+  const openEditDialog = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
     setFormData({
       name: supplier.name,
@@ -168,19 +167,18 @@ const SuppliersPage = () => {
       category: supplier.category,
       address: supplier.address,
       contacts: supplier.contacts,
-      paymentTerms: supplier.paymentTerms,
-      currency: supplier.currency,
-      isActive: supplier.isActive
+      payment_terms: supplier.payment_terms,
+      delivery_time: supplier.delivery_time
     });
     setShowEditDialog(true);
   };
 
-  const openDeleteDialog = (supplier) => {
+  const openDeleteDialog = (supplier: Supplier) => {
     setSelectedSupplier(supplier);
     setShowDeleteDialog(true);
   };
 
-  const getRatingStars = (rating) => {
+  const getRatingStars = (rating: number = 0) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
@@ -189,7 +187,7 @@ const SuppliersPage = () => {
     ));
   };
 
-  const getPerformanceTrend = (rate) => {
+  const getPerformanceTrend = (rate: number = 0) => {
     if (rate >= 95) return { icon: TrendingUp, color: 'text-green-500', label: 'Excellent' };
     if (rate >= 85) return { icon: TrendingUp, color: 'text-blue-500', label: 'Bon' };
     return { icon: TrendingDown, color: 'text-red-500', label: 'À améliorer' };
