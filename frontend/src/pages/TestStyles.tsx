@@ -44,9 +44,9 @@ const TestStyles: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="default">Default</Badge>
-                <Badge variant="secondary">Secondary</Badge>
-                <Badge variant="destructive">Destructive</Badge>
+                <Badge variant="default" className="">Default</Badge>
+                <Badge variant="secondary" className="">Secondary</Badge>
+                <Badge variant="destructive" className="">Destructive</Badge>
               </div>
               <Alert>
                 <AlertDescription>
