@@ -37,7 +37,7 @@ export const ordersAPI = {
     
     if (filters.supplier && filters.supplier !== 'all') {
       filteredOrders = filteredOrders.filter(order =>
-        order.supplier.id === parseInt(filters.supplier)
+        order.supplier.id === parseInt(filters.supplier!)
       );
     }
     
