@@ -29,10 +29,10 @@ import { useToast } from '../hooks/use-toast';
 import { fetchAlerts, markAsRead, markAllAsRead, dismissAlert, setFilters } from '../store/slices/alertsSlice';
 
 const AlertsPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { toast } = useToast();
   
-  const { alerts, isLoading, filters, unreadCount, criticalCount } = useSelector(state => state.alerts);
+  const { alerts, isLoading, filters, unreadCount, criticalCount } = useAppSelector(state => state.alerts);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
