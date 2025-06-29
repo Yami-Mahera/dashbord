@@ -1,13 +1,14 @@
 import { mockOrders, mockArticles, mockSuppliers, mockUsers } from "./mockData";
+import { OrderFilters, OrderCreateData, OrderUpdateData, DeliveryData, SimulationData, OrderData, OrdersResponse } from "../types/order.types";
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-let ordersData = [...mockOrders];
+let ordersData: OrderData[] = [...mockOrders];
 let nextId = Math.max(...ordersData.map(o => o.id)) + 1;
 let orderCounter = ordersData.length + 1;
 
 export const ordersAPI = {
-  async getAll(filters = {}) {
+  async getAll(filters: OrderFilters = {}): Promise<OrdersResponse> {
     await delay(800);
     
     let filteredOrders = [...ordersData];
@@ -42,21 +43,21 @@ export const ordersAPI = {
     
     if (filters.dateFrom) {
       filteredOrders = filteredOrders.filter(order =>
-        new Date(order.orderDate) >= new Date(filters.dateFrom)
+        new Date(order.orderDate) >= new Date(filters.dateFrom!)
       );
     }
     
     if (filters.dateTo) {
       filteredOrders = filteredOrders.filter(order =>
-        new Date(order.orderDate) <= new Date(filters.dateTo)
+        new Date(order.orderDate) <= new Date(filters.dateTo!)
       );
     }
 
     // Sorting
     if (filters.sortBy) {
       filteredOrders.sort((a, b) => {
-        let aVal = a[filters.sortBy];
-        let bVal = b[filters.sortBy];
+        let aVal: any = (a as any)[filters.sortBy!];
+        let bVal: any = (b as any)[filters.sortBy!];
         
         if (filters.sortBy === 'supplier.name') {
           aVal = a.supplier.name;
@@ -107,10 +108,10 @@ export const ordersAPI = {
     };
   },
 
-  async getById(id) {
+  async getById(id: string | number): Promise<OrderData> {
     await delay(500);
     
-    const order = ordersData.find(o => o.id === parseInt(id));
+    const order = ordersData.find(o => o.id === parseInt(id.toString()));
     if (!order) {
       throw new Error("Commande non trouvée");
     }
@@ -118,7 +119,7 @@ export const ordersAPI = {
     return order;
   },
 
-  async create(orderData) {
+  async create(orderData: OrderCreateData): Promise<OrderData> {
     await delay(1200);
     
     // Validate required fields
@@ -127,13 +128,13 @@ export const ordersAPI = {
     }
     
     // Calculate totals
-    const subtotal = orderData.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const subtotal = orderData.items.reduce((sum: number, item: any) => sum + item.totalPrice, 0);
     const taxAmount = subtotal * 0.2; // 20% VAT
     const totalAmount = subtotal + taxAmount;
     
     const orderNumber = `PO-${new Date().getFullYear()}-${String(orderCounter++).padStart(3, '0')}`;
     
-    const newOrder = {
+    const newOrder: OrderData = {
       id: nextId++,
       orderNumber,
       supplier: orderData.supplier,
@@ -174,10 +175,10 @@ export const ordersAPI = {
     return newOrder;
   },
 
-  async update(id, orderData) {
+  async update(id: string | number, orderData: OrderUpdateData): Promise<OrderData> {
     await delay(800);
     
-    const index = ordersData.findIndex(o => o.id === parseInt(id));
+    const index = ordersData.findIndex(o => o.id === parseInt(id.toString()));
     if (index === -1) {
       throw new Error("Commande non trouvée");
     }
@@ -193,7 +194,7 @@ export const ordersAPI = {
     let updatedOrder = { ...currentOrder, ...orderData };
     
     if (orderData.items) {
-      const subtotal = orderData.items.reduce((sum, item) => sum + item.totalPrice, 0);
+      const subtotal = orderData.items.reduce((sum: number, item: any) => sum + item.totalPrice, 0);
       const taxAmount = subtotal * 0.2;
       const totalAmount = subtotal + taxAmount;
       
@@ -217,10 +218,10 @@ export const ordersAPI = {
     return updatedOrder;
   },
 
-  async validate(id, validatedBy) {
+  async validate(id: string | number, validatedBy: any): Promise<OrderData> {
     await delay(800);
     
-    const index = ordersData.findIndex(o => o.id === parseInt(id));
+    const index = ordersData.findIndex(o => o.id === parseInt(id.toString()));
     if (index === -1) {
       throw new Error("Commande non trouvée");
     }
@@ -232,10 +233,10 @@ export const ordersAPI = {
     }
     
     // Perform validation checks
-    const validationErrors = [];
+    const validationErrors: string[] = [];
     
     // Check stock availability
-    order.items.forEach(item => {
+    order.items.forEach((item: any) => {
       const article = mockArticles.find(a => a.id === item.article.id);
       if (article && article.currentStock < item.quantity) {
         validationErrors.push(`Stock insuffisant pour ${article.name}`);
@@ -249,7 +250,7 @@ export const ordersAPI = {
       throw new Error(`Erreurs de validation: ${validationErrors.join(', ')}`);
     }
     
-    const validatedOrder = {
+    const validatedOrder: OrderData = {
       ...order,
       status: 'validee',
       approvedBy: validatedBy,
@@ -278,10 +279,10 @@ export const ordersAPI = {
     return validatedOrder;
   },
 
-  async reject(id, reason, rejectedBy) {
+  async reject(id: string | number, reason: string, rejectedBy: any): Promise<OrderData> {
     await delay(600);
     
-    const index = ordersData.findIndex(o => o.id === parseInt(id));
+    const index = ordersData.findIndex(o => o.id === parseInt(id.toString()));
     if (index === -1) {
       throw new Error("Commande non trouvée");
     }
@@ -292,7 +293,7 @@ export const ordersAPI = {
       throw new Error("Seules les commandes en attente peuvent être rejetées");
     }
     
-    const rejectedOrder = {
+    const rejectedOrder: OrderData = {
       ...order,
       status: 'rejetee',
       rejectionReason: reason,
@@ -321,10 +322,10 @@ export const ordersAPI = {
     return rejectedOrder;
   },
 
-  async markAsDelivered(id, deliveryData) {
+  async markAsDelivered(id: string | number, deliveryData: DeliveryData): Promise<OrderData> {
     await delay(600);
     
-    const index = ordersData.findIndex(o => o.id === parseInt(id));
+    const index = ordersData.findIndex(o => o.id === parseInt(id.toString()));
     if (index === -1) {
       throw new Error("Commande non trouvée");
     }
@@ -335,7 +336,7 @@ export const ordersAPI = {
       throw new Error("Seules les commandes validées peuvent être marquées comme livrées");
     }
     
-    const deliveredOrder = {
+    const deliveredOrder: OrderData = {
       ...order,
       status: 'livree',
       actualDeliveryDate: deliveryData.deliveryDate || new Date().toISOString(),
@@ -354,19 +355,19 @@ export const ordersAPI = {
     return deliveredOrder;
   },
 
-  async simulateOrder(simulationData) {
+  async simulateOrder(simulationData: SimulationData) {
     await delay(1000);
     
     // Simulate order creation with various scenarios
     const { items, supplier, deliveryDate } = simulationData;
     
-    let warnings = [];
-    let recommendations = [];
+    let warnings: string[] = [];
+    let recommendations: string[] = [];
     let totalCost = 0;
     let estimatedDelivery = deliveryDate;
     
     // Check each item
-    items.forEach(item => {
+    items.forEach((item: any) => {
       const article = mockArticles.find(a => a.id === item.articleId);
       if (article) {
         totalCost += item.quantity * article.price;
@@ -407,7 +408,7 @@ export const ordersAPI = {
       simulation: {
         totalCost: totalCost * 1.2, // Including tax
         estimatedDelivery,
-        leadTime: Math.ceil((new Date(estimatedDelivery) - new Date()) / (1000 * 60 * 60 * 24)),
+        leadTime: Math.ceil((new Date(estimatedDelivery).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
         feasible: warnings.length === 0,
         confidenceScore: Math.max(100 - warnings.length * 20, 0)
       },
