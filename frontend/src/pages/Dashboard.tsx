@@ -284,13 +284,13 @@ const Dashboard: React.FC = () => {
         />
       </motion.div>
 
-      {/* Bottom Section */}
+      {/* Bottom Section - Activities and Alerts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Activities */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.2 }}
+          transition={{ duration: 0.5, delay: 1.8 }}
         >
           <Card>
             <CardHeader>
@@ -332,46 +332,41 @@ const Dashboard: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Top Suppliers */}
+        {/* Critical Alerts */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.4 }}
+          transition={{ duration: 0.5, delay: 2.0 }}
         >
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Users className="w-5 h-5 mr-2" />
-                Top fournisseurs
+                <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
+                Alertes critiques
               </CardTitle>
               <CardDescription>
-                Fournisseurs les plus performants
+                Alertes nécessitant une attention immédiate
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {topSuppliers.map((supplier, index) => (
-                  <div key={supplier.id} className="flex items-center space-x-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">{index + 1}</span>
+              <div className="space-y-3">
+                {criticalAlerts.length > 0 ? (
+                  criticalAlerts.map((alert) => (
+                    <div key={alert.id} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                      <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-red-900">{alert.title}</p>
+                        <p className="text-xs text-red-700 mt-1">{alert.message}</p>
+                        <p className="text-xs text-red-600 mt-1">{formatTimeAgo(alert.createdAt)}</p>
                       </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{supplier.name}</p>
-                      <div className="flex items-center mt-1">
-                        <div className="flex-1">
-                          <Progress value={supplier.performanceScore} className="h-2" />
-                        </div>
-                        <span className="text-xs text-gray-500 ml-2">{supplier.performanceScore}%</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">{supplier.orders}</p>
-                      <p className="text-xs text-gray-500">commandes</p>
-                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Aucune alerte critique</p>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
           </Card>
