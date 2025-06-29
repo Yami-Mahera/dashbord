@@ -1,12 +1,34 @@
 import { mockAlerts } from "./mockData";
+import { Alert } from "../types";
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-let alertsData = [...mockAlerts];
-let nextId = Math.max(...alertsData.map(a => a.id)) + 1;
+interface AlertFilters {
+  type?: string;
+  priority?: string;
+  read?: string;
+  actionRequired?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+interface AlertData {
+  id: string | number;
+  type: string;
+  title: string;
+  message: string;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  read: boolean;
+  createdAt: string;
+  readAt?: string;
+  [key: string]: any;
+}
+
+let alertsData: AlertData[] = [...mockAlerts as AlertData[]];
+let nextId = Math.max(...alertsData.map(a => Number(a.id))) + 1;
 
 export const alertsAPI = {
-  async getAll(filters = {}) {
+  async getAll(filters: AlertFilters = {}) {
     await delay(600);
     
     let filteredAlerts = [...alertsData];
@@ -33,20 +55,19 @@ export const alertsAPI = {
     
     if (filters.actionRequired !== undefined) {
       filteredAlerts = filteredAlerts.filter(alert =>
-        alert.actionRequired === filters.actionRequired
+        (alert as any).actionRequired === filters.actionRequired
       );
     }
 
-    // Sorting - most recent first, then by priority
+    // Sort by priority and date
+    const priorityOrder: Record<string, number> = { critical: 3, high: 2, medium: 1, low: 0 };
     filteredAlerts.sort((a, b) => {
-      // Priority order: critical > high > medium > low
-      const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
       
       if (a.priority !== b.priority) {
         return priorityOrder[b.priority] - priorityOrder[a.priority];
       }
       
-      return new Date(b.createdAt) - new Date(a.createdAt);
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
     
     // Pagination
@@ -57,56 +78,52 @@ export const alertsAPI = {
     
     const paginatedAlerts = filteredAlerts.slice(startIndex, endIndex);
     
-    // Calculate counts
-    const unreadCount = alertsData.filter(a => !a.read).length;
-    const criticalCount = alertsData.filter(a => a.priority === 'critical' && !a.read).length;
-    
     return {
-      data: paginatedAlerts,
-      pagination: {
-        page,
-        limit,
-        total: filteredAlerts.length,
-        totalPages: Math.ceil(filteredAlerts.length / limit)
-      },
-      unreadCount,
-      criticalCount,
-      summary: {
-        total: alertsData.length,
+      alerts: paginatedAlerts,
+      total: filteredAlerts.length,
+      page,
+      limit,
+      totalPages: Math.ceil(filteredAlerts.length / limit),
+      unreadCount: alertsData.filter(a => !a.read).length,
+      criticalCount: alertsData.filter(a => a.priority === 'critical').length,
+      priorities: ['critical', 'high', 'medium', 'low'],
+      types: [...new Set(alertsData.map(a => a.type))],
+      statistics: {
         byPriority: {
           critical: alertsData.filter(a => a.priority === 'critical').length,
           high: alertsData.filter(a => a.priority === 'high').length,
           medium: alertsData.filter(a => a.priority === 'medium').length,
           low: alertsData.filter(a => a.priority === 'low').length
         },
-        byType: {
-          stock_low: alertsData.filter(a => a.type === 'stock_low').length,
-          order_delay: alertsData.filter(a => a.type === 'order_delay').length,
-          approval_pending: alertsData.filter(a => a.type === 'approval_pending').length,
-          supplier_performance: alertsData.filter(a => a.type === 'supplier_performance').length
-        },
-        actionRequired: alertsData.filter(a => a.actionRequired).length
+        byType: alertsData.reduce((acc: Record<string, number>, alert) => {
+          acc[alert.type] = (acc[alert.type] || 0) + 1;
+          return acc;
+        }, {}),
+        readStatus: {
+          read: alertsData.filter(a => a.read).length,
+          unread: alertsData.filter(a => !a.read).length
+        }
       }
     };
   },
 
-  async getById(id) {
+  async getById(id: string | number) {
     await delay(300);
     
-    const alert = alertsData.find(a => a.id === parseInt(id));
+    const alert = alertsData.find(a => a.id === Number(id));
     if (!alert) {
-      throw new Error("Alerte non trouvée");
+      throw new Error('Alert not found');
     }
     
     return alert;
   },
 
-  async markAsRead(alertId) {
+  async markAsRead(alertId: string | number) {
     await delay(400);
     
-    const index = alertsData.findIndex(a => a.id === parseInt(alertId));
+    const index = alertsData.findIndex(a => a.id === Number(alertId));
     if (index === -1) {
-      throw new Error("Alerte non trouvée");
+      throw new Error('Alert not found');
     }
     
     alertsData[index] = {
@@ -118,171 +135,173 @@ export const alertsAPI = {
     return alertsData[index];
   },
 
-  async markAllAsRead() {
-    await delay(600);
+  async markMultipleAsRead(alertIds: (string | number)[]) {
+    await delay(500);
     
-    const unreadAlerts = alertsData.filter(a => !a.read);
     const readAt = new Date().toISOString();
-    
     alertsData = alertsData.map(alert => ({
       ...alert,
-      read: true,
-      readAt: alert.read ? alert.readAt : readAt
+      read: alertIds.includes(alert.id) ? true : alert.read,
+      readAt: alertIds.includes(alert.id) && !alert.read ? readAt : (alert as any).readAt
     }));
     
     return {
-      success: true,
-      markedCount: unreadAlerts.length
+      updated: alertIds.length,
+      alerts: alertsData.filter(a => alertIds.includes(a.id))
     };
   },
 
-  async dismiss(alertId) {
+  async dismiss(alertId: string | number) {
     await delay(400);
     
-    const index = alertsData.findIndex(a => a.id === parseInt(alertId));
+    const index = alertsData.findIndex(a => a.id === Number(alertId));
     if (index === -1) {
-      throw new Error("Alerte non trouvée");
+      throw new Error('Alert not found');
     }
     
     alertsData.splice(index, 1);
-    return { success: true };
+    
+    return { success: true, id: alertId };
   },
 
-  async create(alertData) {
+  async create(alertData: Partial<AlertData>) {
     await delay(500);
     
-    const newAlert = {
+    const newAlert: AlertData = {
       id: nextId++,
-      type: alertData.type,
-      priority: alertData.priority,
-      title: alertData.title,
-      message: alertData.message,
+      type: alertData.type || 'general',
+      title: alertData.title || '',
+      message: alertData.message || '',
+      priority: alertData.priority || 'medium',
       read: false,
-      actionRequired: alertData.actionRequired || false,
       createdAt: new Date().toISOString(),
-      ...alertData.data // Additional contextual data
+      ...alertData
     };
     
     alertsData.unshift(newAlert);
+    
     return newAlert;
   },
 
-  async getAlertTypes() {
+  async getBulkActions() {
     await delay(200);
     
     return [
-      {
-        type: 'stock_low',
-        label: 'Stock faible',
-        description: 'Articles avec un stock inférieur au seuil minimum',
-        icon: 'package',
-        color: 'red'
-      },
-      {
-        type: 'order_delay',
-        label: 'Retard commande',
-        description: 'Commandes risquant d\'être en retard',
-        icon: 'clock',
-        color: 'orange'
-      },
-      {
-        type: 'approval_pending',
-        label: 'Approbation en attente',
-        description: 'Commandes en attente de validation',
-        icon: 'check-circle',
-        color: 'blue'
-      },
-      {
-        type: 'supplier_performance',
-        label: 'Performance fournisseur',
-        description: 'Alertes liées à la performance des fournisseurs',
-        icon: 'trending-down',
-        color: 'yellow'
-      },
-      {
-        type: 'budget_alert',
-        label: 'Alerte budget',
-        description: 'Dépassements ou approche des seuils budgétaires',
-        icon: 'dollar-sign',
-        color: 'purple'
-      },
-      {
-        type: 'quality_issue',
-        label: 'Problème qualité',
-        description: 'Problèmes de qualité détectés',
-        icon: 'alert-triangle',
-        color: 'red'
-      },
-      {
-        type: 'contract_expiry',
-        label: 'Expiration contrat',
-        description: 'Contrats fournisseurs arrivant à expiration',
-        icon: 'file-text',
-        color: 'gray'
-      }
+      { id: 'mark_read', label: 'Marquer comme lu', icon: 'check' },
+      { id: 'dismiss', label: 'Ignorer', icon: 'x' },
+      { id: 'archive', label: 'Archiver', icon: 'archive' },
+      { id: 'escalate', label: 'Escalader', icon: 'alert-triangle' }
     ];
   },
 
-  async updateAlertPreferences(userId, preferences) {
+  async executeBulkAction(action: string, alertIds: (string | number)[]) {
+    await delay(600);
+    
+    switch (action) {
+      case 'mark_read':
+        return await this.markMultipleAsRead(alertIds);
+      
+      case 'dismiss':
+        alertsData = alertsData.filter(alert => !alertIds.includes(alert.id));
+        return { success: true, dismissed: alertIds.length };
+      
+      case 'archive':
+        alertsData = alertsData.map(alert => ({
+          ...alert,
+          archived: alertIds.includes(alert.id) ? true : (alert as any).archived
+        }));
+        return { success: true, archived: alertIds.length };
+      
+      case 'escalate':
+        alertsData = alertsData.map(alert => ({
+          ...alert,
+          priority: alertIds.includes(alert.id) && alert.priority !== 'critical' 
+            ? 'high' as const
+            : alert.priority,
+          escalated: alertIds.includes(alert.id) ? true : (alert as any).escalated
+        }));
+        return { success: true, escalated: alertIds.length };
+      
+      default:
+        throw new Error('Unknown bulk action');
+    }
+  },
+
+  async getRecentActivity(days = 7) {
+    await delay(400);
+    
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    const recentAlerts = alertsData.filter(alert => 
+      new Date(alert.createdAt) >= cutoffDate
+    );
+    
+    return {
+      totalAlerts: recentAlerts.length,
+      criticalAlerts: recentAlerts.filter(a => a.priority === 'critical').length,
+      resolvedAlerts: recentAlerts.filter(a => a.read).length,
+      avgResolutionTime: '2.4 hours', // Mock calculation
+      trends: {
+        thisWeek: recentAlerts.length,
+        lastWeek: Math.floor(recentAlerts.length * 0.85), // Mock comparison
+        change: 15 // Mock percentage change
+      }
+    };
+  },
+
+  async updateAlertPreferences(userId: string | number, preferences: any) {
     await delay(400);
     
     // Mock preferences update
-    const defaultPreferences = {
-      emailNotifications: true,
-      pushNotifications: true,
-      priorities: {
-        critical: { email: true, push: true, sound: true },
-        high: { email: true, push: true, sound: false },
-        medium: { email: false, push: true, sound: false },
-        low: { email: false, push: false, sound: false }
-      },
-      types: {
-        stock_low: { enabled: true, threshold: 5 },
-        order_delay: { enabled: true, threshold: 24 },
-        approval_pending: { enabled: true, threshold: 48 },
-        supplier_performance: { enabled: true, threshold: 80 },
-        budget_alert: { enabled: true, threshold: 90 },
-        quality_issue: { enabled: true, threshold: 0 },
-        contract_expiry: { enabled: true, threshold: 30 }
+    localStorage.setItem(`alertPreferences_${userId}`, JSON.stringify(preferences));
+    
+    return {
+      success: true,
+      preferences: {
+        emailNotifications: preferences.emailNotifications || false,
+        smsNotifications: preferences.smsNotifications || false,
+        desktopNotifications: preferences.desktopNotifications || true,
+        criticalOnly: preferences.criticalOnly || false,
+        quietHours: preferences.quietHours || { start: '22:00', end: '08:00' },
+        categories: preferences.categories || ['all']
       }
     };
-    
-    const updatedPreferences = { ...defaultPreferences, ...preferences };
-    
-    // In a real app, this would be saved to the database
-    localStorage.setItem(`alertPreferences_${userId}`, JSON.stringify(updatedPreferences));
-    
-    return updatedPreferences;
   },
 
-  async getAlertPreferences(userId) {
+  async getAlertMetrics(period = '30days') {
+    await delay(500);
+    
+    return {
+      period,
+      totalGenerated: alertsData.length,
+      totalResolved: alertsData.filter(a => a.read).length,
+      averageResolutionTime: '3.2 hours',
+      resolutionRate: 78,
+      byCategory: alertsData.reduce((acc: Record<string, number>, alert) => {
+        acc[alert.type] = (acc[alert.type] || 0) + 1;
+        return acc;
+      }, {}),
+      timeline: Array.from({ length: 30 }, (_, i) => ({
+        date: new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        generated: Math.floor(Math.random() * 10) + 1,
+        resolved: Math.floor(Math.random() * 8) + 1
+      })).reverse()
+    };
+  },
+
+  async getAlertPreferences(userId: string | number) {
     await delay(300);
     
     const saved = localStorage.getItem(`alertPreferences_${userId}`);
     
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    
-    // Return default preferences
-    return {
-      emailNotifications: true,
-      pushNotifications: true,
-      priorities: {
-        critical: { email: true, push: true, sound: true },
-        high: { email: true, push: true, sound: false },
-        medium: { email: false, push: true, sound: false },
-        low: { email: false, push: false, sound: false }
-      },
-      types: {
-        stock_low: { enabled: true, threshold: 5 },
-        order_delay: { enabled: true, threshold: 24 },
-        approval_pending: { enabled: true, threshold: 48 },
-        supplier_performance: { enabled: true, threshold: 80 },
-        budget_alert: { enabled: true, threshold: 90 },
-        quality_issue: { enabled: true, threshold: 0 },
-        contract_expiry: { enabled: true, threshold: 30 }
-      }
+    return saved ? JSON.parse(saved) : {
+      emailNotifications: false,
+      smsNotifications: false,
+      desktopNotifications: true,
+      criticalOnly: false,
+      quietHours: { start: '22:00', end: '08:00' },
+      categories: ['all']
     };
   }
 };
