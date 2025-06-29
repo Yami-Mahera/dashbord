@@ -199,7 +199,5 @@ export const alertsAPI = {
     alertsData.unshift(newAlert);
     
     return newAlert;
-  },
-
-}
+  }
 };
