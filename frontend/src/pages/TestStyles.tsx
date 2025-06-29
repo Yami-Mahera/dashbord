@@ -125,9 +125,9 @@ const TestStyles: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
-              <p>• <strong>Desktop (>1024px):</strong> Devrait afficher 3 colonnes dans la grille principale</p>
+              <p>• <strong>Desktop (&gt;1024px):</strong> Devrait afficher 3 colonnes dans la grille principale</p>
               <p>• <strong>Tablette (768-1024px):</strong> Devrait afficher 2 colonnes dans la grille principale</p>
-              <p>• <strong>Mobile (<768px):</strong> Devrait afficher 1 colonne dans la grille principale</p>
+              <p>• <strong>Mobile (&lt;768px):</strong> Devrait afficher 1 colonne dans la grille principale</p>
               <p>• Tous les gradients et couleurs devraient être visibles</p>
               <p>• Les boutons devraient avoir des effets hover</p>
               <p>• Les cartes devraient avoir des ombres qui changent au hover</p>
