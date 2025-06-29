@@ -1,6 +1,41 @@
+import { 
+  DashboardData, 
+  DateRange, 
+  KPI,
+  ChartsData,
+  Activity,
+  Alert,
+  Supplier,
+  StockRotationData,
+  Article,
+  Order
+} from "../types";
 import { mockDashboardData, mockOrders, mockSuppliers, mockArticles, mockAlerts } from "./mockData";
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+
+interface ProcurementInsights {
+  period: string;
+  totalSpend: number;
+  orderFrequency: number;
+  topCategories: Array<{
+    category: string;
+    amount: number;
+    percentage: number;
+  }>;
+  costSavingsOpportunities: Array<{
+    opportunity: string;
+    potentialSaving: number;
+    feasibility: 'high' | 'medium' | 'low';
+  }>;
+  riskAssessment: {
+    supplierDependency: 'high' | 'medium' | 'low';
+    stockRisk: 'high' | 'medium' | 'low';
+    deliveryRisk: 'high' | 'medium' | 'low';
+    priceVolatility: 'high' | 'medium' | 'low';
+  };
+  recommendations: string[];
+}
 
 export const dashboardAPI = {
   async getDashboardData(dateRange = {}) {
