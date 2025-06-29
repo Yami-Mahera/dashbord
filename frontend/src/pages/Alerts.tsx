@@ -83,9 +83,9 @@ const AlertsPage = () => {
     }
   };
 
-  const handleDismissAlert = async (alertId) => {
+  const handleDismissAlert = async (alertId: string) => {
     try {
-      await dispatch(dismissAlert(alertId)).unwrap();
+      await dispatch(deleteAlert(alertId));
       toast({
         title: "Succès",
         description: "Alerte supprimée",
@@ -93,7 +93,7 @@ const AlertsPage = () => {
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
