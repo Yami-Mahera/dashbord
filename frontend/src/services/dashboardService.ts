@@ -166,8 +166,8 @@ export const dashboardAPI = {
       rotationRate: article.stockRotation,
       daysOfStock: Math.ceil(article.currentStock / (article.averageConsumption || 1)),
       stockValue: article.stockValue,
-      status: article.stockRotation > 12 ? 'fast' : 
-              article.stockRotation > 6 ? 'normal' : 'slow'
+      status: (article.stockRotation > 12 ? 'fast' : 
+              article.stockRotation > 6 ? 'normal' : 'slow') as 'fast' | 'normal' | 'slow'
     }));
     
     return {
