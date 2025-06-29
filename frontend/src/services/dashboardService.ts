@@ -246,7 +246,7 @@ export const dashboardAPI = {
     };
   },
 
-  async getProcurementInsights(period = '3months') {
+  async getProcurementInsights(period: '3months' | '6months' | '1year' = '3months'): Promise<ProcurementInsights> {
     await delay(700);
     
     return {
