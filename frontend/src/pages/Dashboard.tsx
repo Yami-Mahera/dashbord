@@ -31,10 +31,10 @@ import SuppliersTable from '../components/tables/SuppliersTable';
 // Types
 import { KPICardProps } from '../types';
 
-const Dashboard = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector(state => state.auth);
-  const { kpis, charts, recentActivities, criticalAlerts, topSuppliers, isLoading } = useSelector(state => state.dashboard);
+const Dashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector(state => state.auth);
+  const { kpis, charts, recentActivities, criticalAlerts, topSuppliers, isLoading } = useAppSelector(state => state.dashboard);
 
   useEffect(() => {
     dispatch(fetchDashboardData());
