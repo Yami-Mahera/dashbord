@@ -154,6 +154,7 @@ export const alertsAPI = {
   },
 
   async markMultipleAsRead(alertIds: (string | number)[]) {
+    await delay(500);
     
     const readAt = new Date().toISOString();
     alertsData = alertsData.map(alert => ({
