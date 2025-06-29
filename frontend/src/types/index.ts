@@ -122,7 +122,7 @@ export interface Order {
 }
 
 export interface StockRotationData {
-  id: string;
+  id: string | number;
   name: string;
   category: string;
   rotationRate: number;
