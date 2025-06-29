@@ -1,7 +1,18 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { authAPI } from "../../services/authService";
+import { User, AuthState } from "../../types";
 
-export const loginUser = createAsyncThunk(
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  user: User;
+  token: string;
+}
+
+export const loginUser = createAsyncThunk<LoginResponse, LoginCredentials>(
   "auth/loginUser",
   async ({ email, password }) => {
     const response = await authAPI.login(email, password);
@@ -11,32 +22,52 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  return null;
-});
+export const logoutUser = createAsyncThunk<void, void>(
+  "auth/logoutUser",
+  async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+);
+
+// Fonction helper pour parser localStorage de manière sécurisée
+const parseStoredUser = (): User | null => {
+  try {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
+  }
+};
+
+const initialState: AuthState = {
+  user: parseStoredUser(),
+  token: localStorage.getItem("token") || null,
+  isLoading: false,
+  error: null,
+  isAuthenticated: !!localStorage.getItem("token"),
+};
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: JSON.parse(localStorage.getItem("user")) || null,
-    token: localStorage.getItem("token") || null,
-    isLoading: false,
-    error: null,
-    isAuthenticated: !!localStorage.getItem("token"),
-  },
+  initialState,
   reducers: {
+    initializeAuth: (state) => {
+      const token = localStorage.getItem("token");
+      const user = parseStoredUser();
+      if (token && user) {
+        state.isAuthenticated = true;
+        state.user = user;
+        state.token = token;
+      }
+    },
     clearError: (state) => {
       state.error = null;
     },
-    initializeAuth: (state) => {
-      const token = localStorage.getItem("token");
-      const user = localStorage.getItem("user");
-      if (token && user) {
-        state.token = token;
-        state.user = JSON.parse(user);
-        state.isAuthenticated = true;
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        localStorage.setItem("user", JSON.stringify(state.user));
       }
     },
   },
@@ -55,7 +86,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.error.message || 'Erreur de connexion';
         state.isAuthenticated = false;
       })
       .addCase(logoutUser.fulfilled, (state) => {
@@ -67,5 +98,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, initializeAuth } = authSlice.actions;
+export const { initializeAuth, clearError, updateUser } = authSlice.actions;
 export default authSlice.reducer;

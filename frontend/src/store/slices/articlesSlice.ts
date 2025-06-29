@@ -1,7 +1,29 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { articlesAPI } from "../../services/articlesService";
+import { Article } from "../../types";
 
-export const fetchArticles = createAsyncThunk(
+// Types pour les paramètres
+interface ArticleFilters {
+  search?: string;
+  category?: string;
+  status?: string;
+  supplier?: string;
+  stockLevel?: string;
+}
+
+interface ArticlesResponse {
+  data: Article[];
+  categories: string[];
+  lowStockAlerts: Article[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export const fetchArticles = createAsyncThunk<ArticlesResponse, ArticleFilters>(
   "articles/fetchArticles",
   async (filters = {}) => {
     const response = await articlesAPI.getAll(filters);
@@ -9,7 +31,7 @@ export const fetchArticles = createAsyncThunk(
   }
 );
 
-export const createArticle = createAsyncThunk(
+export const createArticle = createAsyncThunk<Article, Partial<Article>>(
   "articles/createArticle",
   async (articleData) => {
     const response = await articlesAPI.create(articleData);
@@ -17,7 +39,7 @@ export const createArticle = createAsyncThunk(
   }
 );
 
-export const updateArticle = createAsyncThunk(
+export const updateArticle = createAsyncThunk<Article, { id: string | number; data: Partial<Article> }>(
   "articles/updateArticle",
   async ({ id, data }) => {
     const response = await articlesAPI.update(id, data);
@@ -25,7 +47,7 @@ export const updateArticle = createAsyncThunk(
   }
 );
 
-export const deleteArticle = createAsyncThunk(
+export const deleteArticle = createAsyncThunk<string | number, string | number>(
   "articles/deleteArticle",
   async (id) => {
     await articlesAPI.delete(id);
@@ -33,38 +55,47 @@ export const deleteArticle = createAsyncThunk(
   }
 );
 
+interface ArticlesState {
+  articles: Article[];
+  categories: string[];
+  lowStockAlerts: Article[];
+  isLoading: boolean;
+  error: string | null;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+const initialState: ArticlesState = {
+  articles: [],
+  categories: [],
+  lowStockAlerts: [],
+  isLoading: false,
+  error: null,
+  pagination: {
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  },
+};
+
 const articlesSlice = createSlice({
   name: "articles",
-  initialState: {
-    articles: [],
-    currentArticle: null,
-    isLoading: false,
-    error: null,
-    filters: {},
-    categories: [],
-    lowStockAlerts: [],
-    pagination: {
-      page: 1,
-      limit: 20,
-      total: 0,
-    },
-  },
+  initialState,
   reducers: {
-    setCurrentArticle: (state, action) => {
-      state.currentArticle = action.payload;
-    },
-    setFilters: (state, action) => {
-      state.filters = { ...state.filters, ...action.payload };
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
-    updateStock: (state, action) => {
+    updateStock: (state, action: PayloadAction<{ id: string | number; stock: number }>) => {
       const { id, stock } = action.payload;
       const article = state.articles.find(a => a.id === id);
       if (article) {
         article.currentStock = stock;
       }
+    },
+    clearError: (state) => {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -82,7 +113,7 @@ const articlesSlice = createSlice({
       })
       .addCase(fetchArticles.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.error.message || 'Erreur lors du chargement des articles';
       })
       .addCase(createArticle.fulfilled, (state, action) => {
         state.articles.push(action.payload);
@@ -99,5 +130,5 @@ const articlesSlice = createSlice({
   },
 });
 
-export const { setCurrentArticle, setFilters, clearError, updateStock } = articlesSlice.actions;
+export const { updateStock, clearError } = articlesSlice.actions;
 export default articlesSlice.reducer;

@@ -1,7 +1,22 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { alertsAPI } from "../../services/alertsService";
+import { Alert } from "../../types";
 
-export const fetchAlerts = createAsyncThunk(
+// Types pour les paramètres
+interface AlertFilters {
+  type?: string;
+  priority?: string;
+  read?: boolean;
+  search?: string;
+}
+
+interface AlertsResponse {
+  data: Alert[];
+  unreadCount: number;
+  criticalCount: number;
+}
+
+export const fetchAlerts = createAsyncThunk<AlertsResponse, AlertFilters>(
   "alerts/fetchAlerts",
   async (filters = {}) => {
     const response = await alertsAPI.getAll(filters);
@@ -9,46 +24,50 @@ export const fetchAlerts = createAsyncThunk(
   }
 );
 
-export const markAsRead = createAsyncThunk(
+export const markAsRead = createAsyncThunk<Alert, { id: string }>(
   "alerts/markAsRead",
-  async (alertId) => {
-    const response = await alertsAPI.markAsRead(alertId);
+  async ({ id }) => {
+    const response = await alertsAPI.markAsRead(id);
     return response;
   }
 );
 
-export const markAllAsRead = createAsyncThunk(
+export const markAllAsRead = createAsyncThunk<void, void>(
   "alerts/markAllAsRead",
   async () => {
-    const response = await alertsAPI.markAllAsRead();
-    return response;
+    await alertsAPI.markAllAsRead();
   }
 );
 
-export const dismissAlert = createAsyncThunk(
+export const dismissAlert = createAsyncThunk<string, string>(
   "alerts/dismissAlert",
-  async (alertId) => {
-    await alertsAPI.dismiss(alertId);
-    return alertId;
+  async (id) => {
+    await alertsAPI.dismiss(id);
+    return id;
   }
 );
+
+interface AlertsState {
+  alerts: Alert[];
+  isLoading: boolean;
+  error: string | null;
+  unreadCount: number;
+  criticalCount: number;
+}
+
+const initialState: AlertsState = {
+  alerts: [],
+  isLoading: false,
+  error: null,
+  unreadCount: 0,
+  criticalCount: 0,
+};
 
 const alertsSlice = createSlice({
   name: "alerts",
-  initialState: {
-    alerts: [],
-    unreadCount: 0,
-    criticalCount: 0,
-    isLoading: false,
-    error: null,
-    filters: {
-      type: 'all',
-      priority: 'all',
-      read: 'all',
-    },
-  },
+  initialState,
   reducers: {
-    addAlert: (state, action) => {
+    addAlert: (state, action: PayloadAction<Alert>) => {
       state.alerts.unshift(action.payload);
       if (!action.payload.read) {
         state.unreadCount += 1;
@@ -56,9 +75,6 @@ const alertsSlice = createSlice({
       if (action.payload.priority === 'critical') {
         state.criticalCount += 1;
       }
-    },
-    setFilters: (state, action) => {
-      state.filters = { ...state.filters, ...action.payload };
     },
     clearError: (state) => {
       state.error = null;
@@ -78,7 +94,7 @@ const alertsSlice = createSlice({
       })
       .addCase(fetchAlerts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message;
+        state.error = action.error.message || 'Erreur lors du chargement des alertes';
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
         const alert = state.alerts.find(a => a.id === action.payload.id);
@@ -109,5 +125,5 @@ const alertsSlice = createSlice({
   },
 });
 
-export const { addAlert, setFilters, clearError } = alertsSlice.actions;
+export const { addAlert, clearError } = alertsSlice.actions;
 export default alertsSlice.reducer;
