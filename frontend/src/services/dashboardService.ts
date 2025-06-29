@@ -190,15 +190,12 @@ export const dashboardAPI = {
     return {
       totalOrders: mockOrders.length * multiplier,
       pendingOrders: mockOrders.filter(o => o.status === 'en_attente').length,
-      validatedOrders: mockOrders.filter(o => o.status === 'validee').length,
-      deliveredOrders: mockOrders.filter(o => o.status === 'livree').length,
-      totalAmount: mockOrders.reduce((sum, o) => sum + o.totalAmount, 0) * multiplier,
-      averageOrderValue: mockOrders.reduce((sum, o) => sum + o.totalAmount, 0) / mockOrders.length,
-      onTimeDeliveryRate: 91.8,
-      stockTurnoverRate: 8.5,
-      supplierSatisfactionRate: 87.3,
-      costSavingsRate: 12.5,
-      processEfficiencyRate: 94.2
+      totalSuppliers: mockSuppliers.length,
+      lowStockItems: mockArticles.filter(a => a.currentStock <= a.minStock).length,
+      averageDeliveryTime: 4.2,
+      serviceLevel: 91.8,
+      costSavings: mockOrders.reduce((sum, o) => sum + o.totalAmount, 0) * 0.125,
+      onTimeDelivery: 91.8
     };
   },
 
