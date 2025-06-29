@@ -144,7 +144,8 @@ export interface DashboardData {
 export interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  loading: boolean;
+  token: string | null;
+  isLoading: boolean;
   error: string | null;
 }
 
