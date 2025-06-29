@@ -135,7 +135,23 @@ export const alertsAPI = {
     return alertsData[index];
   },
 
-  async markMultipleAsRead(alertIds: (string | number)[]) {
+  async markAllAsRead() {
+    await delay(600);
+    
+    const readAt = new Date().toISOString();
+    const unreadAlerts = alertsData.filter(a => !a.read);
+    
+    alertsData = alertsData.map(alert => ({
+      ...alert,
+      read: true,
+      readAt: !alert.read ? readAt : (alert as any).readAt
+    }));
+    
+    return {
+      updated: unreadAlerts.length,
+      alerts: alertsData
+    };
+  },
     await delay(500);
     
     const readAt = new Date().toISOString();
