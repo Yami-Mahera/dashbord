@@ -154,7 +154,7 @@ export const dashboardAPI = {
       .map(supplier => ({
         ...supplier,
         performanceScore: Math.round((supplier.onTimeDeliveryRate + supplier.qualityRating * 20) / 2),
-        trend: Math.random() > 0.5 ? 'up' : 'down', // Mock trend
+        trend: (Math.random() > 0.5 ? 'up' : 'down') as 'up' | 'down',
         lastOrder: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
       }));
     
