@@ -199,6 +199,7 @@ test_plan:
   test_priority: "high_first"
   environment_issues:
     - "Preview environment unavailable for frontend testing"
+    - "TypeScript errors in suppliersSlice.ts but application still compiles"
 
 agent_communication:
   - agent: "main"
