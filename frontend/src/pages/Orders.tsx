@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
@@ -29,37 +29,39 @@ import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import { fetchOrders, validateOrder, rejectOrder, setFilters } from '../store/slices/ordersSlice';
+import { OrderData } from '../types/order.types';
 
 const OrdersPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { toast } = useToast();
   
-  const { orders, isLoading, filters, orderStats } = useSelector(state => state.orders);
-  const { user } = useSelector(state => state.auth);
+  const { orders, isLoading, filters, orderStats } = useAppSelector(state => state.orders);
+  const { user } = useAppSelector(state => state.auth);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [showValidateDialog, setShowValidateDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<OrderData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
   useEffect(() => {
     dispatch(fetchOrders(filters));
   }, [dispatch, filters]);
 
-  const handleSearch = (value) => {
+  const handleSearch = (value: string) => {
     setSearchTerm(value);
     dispatch(setFilters({ search: value }));
   };
 
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: string, value: any) => {
     dispatch(setFilters({ [key]: value }));
   };
 
   const handleValidateOrder = async () => {
+    if (!selectedOrder || !user) return;
     try {
-      await dispatch(validateOrder(selectedOrder.id, user)).unwrap();
+      await dispatch(validateOrder({ id: selectedOrder.id, validatedBy: user })).unwrap();
       toast({
         title: "Succès",
         description: "Commande validée avec succès",
@@ -69,15 +71,16 @@ const OrdersPage = () => {
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
   };
 
   const handleRejectOrder = async () => {
+    if (!selectedOrder || !user) return;
     try {
-      await dispatch(rejectOrder({ id: selectedOrder.id, reason: rejectionReason }, user)).unwrap();
+      await dispatch(rejectOrder({ id: selectedOrder.id, reason: rejectionReason, rejectedBy: user })).unwrap();
       toast({
         title: "Succès",
         description: "Commande rejetée",
@@ -88,7 +91,7 @@ const OrdersPage = () => {
     } catch (error) {
       toast({
         title: "Erreur",
-        description: error,
+        description: String(error),
         variant: "destructive",
       });
     }
