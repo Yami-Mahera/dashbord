@@ -8,11 +8,11 @@ interface LoginCredentials {
 }
 
 interface LoginResponse {
-  user: User;
+  user: any; // Temporaire
   token: string;
 }
 
-export const loginUser = createAsyncThunk<LoginResponse, LoginCredentials>(
+export const loginUser = createAsyncThunk<any, any>(
   "auth/loginUser",
   async ({ email, password }) => {
     const response = await authAPI.login(email, password);
