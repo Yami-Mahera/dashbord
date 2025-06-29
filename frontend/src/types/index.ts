@@ -101,7 +101,7 @@ export interface Supplier {
 }
 
 export interface Article {
-  id: string;
+  id: string | number;
   name: string;
   category: string;
   currentStock: number;
