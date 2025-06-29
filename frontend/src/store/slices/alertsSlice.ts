@@ -76,6 +76,9 @@ const alertsSlice = createSlice({
         state.criticalCount += 1;
       }
     },
+    setFilters: (state, action: PayloadAction<Partial<AlertFilters>>) => {
+      // Note: Les filtres seront gérés par le composant local
+    },
     clearError: (state) => {
       state.error = null;
     },
