@@ -47,6 +47,7 @@ const AppContent: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/test-styles" element={<TestStyles />} />
+          <Route path="/test-api" element={<APITestPage />} />
           <Route
             path="/login"
             element={
