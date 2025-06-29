@@ -30,11 +30,11 @@ import { useToast } from '../hooks/use-toast';
 import { fetchArticles, createArticle, updateArticle, deleteArticle, setFilters } from '../store/slices/articlesSlice';
 
 const ArticlesPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { toast } = useToast();
   
-  const { articles, isLoading, filters, categories, lowStockAlerts } = useSelector(state => state.articles);
-  const { suppliers } = useSelector(state => state.suppliers);
+  const { articles, isLoading, filters, categories, lowStockAlerts } = useAppSelector(state => state.articles);
+  const { suppliers } = useAppSelector(state => state.suppliers);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
