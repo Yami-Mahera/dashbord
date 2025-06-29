@@ -87,7 +87,7 @@ export const alertsAPI = {
       unreadCount: alertsData.filter(a => !a.read).length,
       criticalCount: alertsData.filter(a => a.priority === 'critical').length,
       priorities: ['critical', 'high', 'medium', 'low'],
-      types: [...new Set(alertsData.map(a => a.type))],
+      types: Array.from(new Set(alertsData.map(a => a.type))),
       statistics: {
         byPriority: {
           critical: alertsData.filter(a => a.priority === 'critical').length,
