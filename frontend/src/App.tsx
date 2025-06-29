@@ -15,6 +15,7 @@ import Suppliers from "./pages/Suppliers";
 import Articles from "./pages/Articles";
 import Orders from "./pages/Orders";
 import Alerts from "./pages/Alerts";
+import TestStyles from "./pages/TestStyles";
 
 // Types
 interface RouteComponentProps {
