@@ -231,77 +231,58 @@ const Dashboard: React.FC = () => {
         ))}
       </div>
 
-      {/* Charts and Lists */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Charts and Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Orders Trend Chart */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="lg:col-span-2"
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2" />
-                Évolution des commandes
-              </CardTitle>
-              <CardDescription>
-                Commandes et montants des 6 derniers mois
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-80 flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Graphique des tendances</p>
-                  <p className="text-sm">Intégration avec une bibliothèque de graphiques</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <OrdersTrendChart data={charts.ordersTrend} />
         </motion.div>
 
-        {/* Critical Alerts */}
+        {/* Cost Analysis Chart */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 1.0 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
-                Alertes critiques
-              </CardTitle>
-              <CardDescription>
-                Alertes nécessitant une attention immédiate
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {criticalAlerts.length > 0 ? (
-                  criticalAlerts.map((alert) => (
-                    <div key={alert.id} className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                      <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-red-900">{alert.title}</p>
-                        <p className="text-xs text-red-700 mt-1">{alert.message}</p>
-                        <p className="text-xs text-red-600 mt-1">{formatTimeAgo(alert.createdAt)}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-6 text-gray-500">
-                    <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Aucune alerte critique</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <CostAnalysisChart data={charts.costAnalysis} />
         </motion.div>
       </div>
+
+      {/* Supplier Performance and Stock Levels */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+        >
+          <SupplierPerformanceChart data={charts.supplierPerformance} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.4 }}
+        >
+          <StockLevelsChart data={charts.stockLevels} />
+        </motion.div>
+      </div>
+
+      {/* Advanced Tables */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 1.6 }}
+      >
+        <SuppliersTable 
+          data={topSuppliers} 
+          title="Analyse des fournisseurs"
+          description="Table interactive avec tri, filtres et export"
+        />
+      </motion.div>
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
