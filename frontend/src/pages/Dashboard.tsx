@@ -40,7 +40,7 @@ const Dashboard: React.FC = () => {
     dispatch(fetchDashboardData());
   }, [dispatch]);
 
-  const kpiCards = [
+  const kpiCards: KPICardProps[] = [
     {
       title: 'Commandes Totales',
       value: kpis.totalOrders,
