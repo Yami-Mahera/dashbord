@@ -48,15 +48,14 @@ export const dashboardAPI = {
     const kpis = {
       totalOrders: mockOrders.length,
       pendingOrders: mockOrders.filter(o => o.status === 'en_attente').length,
-      totalSuppliers: mockSuppliers.filter(s => s.isActive).length,
+      totalSuppliers: mockSuppliers.length,
       lowStockItems: mockArticles.filter(a => a.currentStock <= a.minStock).length,
-      averageDeliveryTime: mockSuppliers.reduce((sum, s) => sum + s.averageDeliveryTime, 0) / mockSuppliers.length,
-      serviceLevel: mockSuppliers.reduce((sum, s) => sum + s.onTimeDeliveryRate, 0) / mockSuppliers.length,
-      costSavings: 125000, // Mock calculation
-      onTimeDelivery: 91.8 // Mock calculation
+      averageDeliveryTime: 4.2,
+      serviceLevel: 91.8,
+      costSavings: 149559,
+      onTimeDelivery: 90.1
     };
     
-    // Generate chart data
     const charts = {
       ordersTrend: [
         { month: "Jan", orders: 45, amount: 125000, budget: 140000 },
@@ -73,8 +72,8 @@ export const dashboardAPI = {
         min: article.minStock,
         max: article.maxStock,
         optimal: Math.floor((article.maxStock + article.minStock) / 2),
-        status: article.currentStock <= article.minStock ? 'critical' : 
-                article.currentStock <= article.reorderPoint ? 'warning' : 'good'
+        status: (article.currentStock <= article.minStock ? 'critical' : 
+                article.currentStock <= article.reorderPoint ? 'warning' : 'good') as 'critical' | 'warning' | 'good'
       })),
       supplierPerformance: mockSuppliers.map(supplier => ({
         name: supplier.name,
@@ -82,8 +81,8 @@ export const dashboardAPI = {
         qualityScore: supplier.qualityRating * 20, // Convert to percentage
         costEfficiency: Math.random() * 20 + 80, // Mock cost efficiency 80-100%
         totalOrders: supplier.totalOrders,
-        reliability: supplier.onTimeDeliveryRate > 95 ? 'excellent' : 
-                    supplier.onTimeDeliveryRate > 85 ? 'good' : 'needs_improvement'
+        reliability: (supplier.onTimeDeliveryRate > 95 ? 'excellent' : 
+                    supplier.onTimeDeliveryRate > 85 ? 'good' : 'needs_improvement') as 'excellent' | 'good' | 'needs_improvement'
       })),
       costAnalysis: [
         { category: "Informatique", budget: 500000, spent: 425000, forecast: 480000 },
@@ -94,7 +93,7 @@ export const dashboardAPI = {
     };
     
     // Recent activities
-    const recentActivities = [
+    const recentActivities: Activity[] = [
       {
         id: 1,
         type: "order_created",
@@ -206,15 +205,7 @@ export const dashboardAPI = {
       total: mockAlerts.length,
       unread: mockAlerts.filter(a => !a.read).length,
       critical: mockAlerts.filter(a => a.priority === 'critical').length,
-      high: mockAlerts.filter(a => a.priority === 'high').length,
-      medium: mockAlerts.filter(a => a.priority === 'medium').length,
-      low: mockAlerts.filter(a => a.priority === 'low').length,
-      byType: {
-        stock_low: mockAlerts.filter(a => a.type === 'stock_low').length,
-        order_delay: mockAlerts.filter(a => a.type === 'order_delay').length,
-        approval_pending: mockAlerts.filter(a => a.type === 'approval_pending').length,
-        supplier_performance: mockAlerts.filter(a => a.type === 'supplier_performance').length
-      }
+      high: mockAlerts.filter(a => a.priority === 'high').length
     };
   },
 
@@ -222,8 +213,8 @@ export const dashboardAPI = {
     await delay(600);
     
     return {
-      totalSuppliers: mockSuppliers.length,
-      activeSuppliers: mockSuppliers.filter(s => s.isActive).length,
+      total: mockSuppliers.length,
+      active: mockSuppliers.filter(s => s.isActive).length,
       topPerformers: mockSuppliers
         .filter(s => s.onTimeDeliveryRate > 95)
         .sort((a, b) => b.onTimeDeliveryRate - a.onTimeDeliveryRate)
@@ -246,43 +237,33 @@ export const dashboardAPI = {
   async getProcurementInsights(period: '3months' | '6months' | '1year' = '3months'): Promise<ProcurementInsights> {
     await delay(700);
     
+    // Mock procurement insights
     return {
       period,
       totalSpend: mockOrders.reduce((sum, o) => sum + o.totalAmount, 0),
-      orderFrequency: mockOrders.length / 3, // orders per month
+      orderFrequency: mockOrders.length / 30, // Orders per day
       topCategories: [
-        { category: 'Informatique', amount: 450000, percentage: 45 },
-        { category: 'Matériaux', amount: 350000, percentage: 35 },
-        { category: 'Logistique', amount: 200000, percentage: 20 }
+        { category: "Informatique", amount: 850000, percentage: 45 },
+        { category: "Matériaux", amount: 420000, percentage: 22 },
+        { category: "Logistique", amount: 380000, percentage: 20 },
+        { category: "Services", amount: 250000, percentage: 13 }
       ],
       costSavingsOpportunities: [
-        {
-          opportunity: 'Négociation volume TechnoFrance',
-          potentialSaving: 25000,
-          feasibility: 'high'
-        },
-        {
-          opportunity: 'Consolidation livraisons matériaux',
-          potentialSaving: 15000,
-          feasibility: 'medium'
-        },
-        {
-          opportunity: 'Alternative fournisseur logistique',
-          potentialSaving: 8000,
-          feasibility: 'low'
-        }
+        { opportunity: "Négociation volume avec TechnoFrance", potentialSaving: 45000, feasibility: 'high' },
+        { opportunity: "Optimisation logistique", potentialSaving: 28000, feasibility: 'medium' },
+        { opportunity: "Consolidation fournisseurs matériaux", potentialSaving: 15000, feasibility: 'medium' }
       ],
       riskAssessment: {
-        supplierDependency: 'medium', // Based on concentration
-        stockRisk: 'high', // Based on low stock items
-        deliveryRisk: 'low', // Based on supplier performance
-        priceVolatility: 'medium' // Based on price trends
+        supplierDependency: 'medium',
+        stockRisk: 'low',
+        deliveryRisk: 'low',
+        priceVolatility: 'medium'
       },
       recommendations: [
-        'Diversifier les fournisseurs pour réduire les risques',
-        'Optimiser les niveaux de stock pour les articles critiques',  
-        'Négocier des contrats cadre avec les fournisseurs principaux',
-        'Mettre en place des alertes préventives sur les délais'
+        "Diversifier les fournisseurs pour les produits informatiques critiques",
+        "Mettre en place des contrats cadre pour stabiliser les prix",
+        "Améliorer la prévision de la demande pour optimiser les stocks",
+        "Développer des partenariats stratégiques avec les meilleurs fournisseurs"
       ]
     };
   }
