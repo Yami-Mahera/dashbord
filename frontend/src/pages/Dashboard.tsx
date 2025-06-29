@@ -107,14 +107,14 @@ const Dashboard: React.FC = () => {
     }
   ];
 
-  const getGreeting = () => {
+  const getGreeting = (): string => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Bonjour';
     if (hour < 18) return 'Bon après-midi';
     return 'Bonsoir';
   };
 
-  const getActivityIcon = (type) => {
+  const getActivityIcon = (type: string): JSX.Element => {
     switch (type) {
       case 'order_created': return <ShoppingCart className="w-4 h-4" />;
       case 'order_approved': return <CheckCircle className="w-4 h-4" />;
@@ -124,7 +124,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getActivityColor = (type) => {
+  const getActivityColor = (type: string): string => {
     switch (type) {
       case 'order_created': return 'text-blue-600 bg-blue-100';
       case 'order_approved': return 'text-green-600 bg-green-100';
@@ -134,7 +134,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string): string => {
     switch (priority) {
       case 'high': return 'text-red-600 bg-red-100';
       case 'medium': return 'text-yellow-600 bg-yellow-100';
@@ -143,10 +143,10 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const formatTimeAgo = (timestamp) => {
+  const formatTimeAgo = (timestamp: string): string => {
     const now = new Date();
     const time = new Date(timestamp);
-    const diffInHours = Math.floor((now - time) / (1000 * 60 * 60));
+    const diffInHours = Math.floor((now.getTime() - time.getTime()) / (1000 * 60 * 60));
     
     if (diffInHours < 1) return 'il y a moins d\'1h';
     if (diffInHours < 24) return `il y a ${diffInHours}h`;
