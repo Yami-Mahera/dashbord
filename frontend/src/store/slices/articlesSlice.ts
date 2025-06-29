@@ -133,5 +133,5 @@ const articlesSlice = createSlice({
   },
 });
 
-export const { updateStock, clearError } = articlesSlice.actions;
+export const { updateStock, setFilters, clearError } = articlesSlice.actions;
 export default articlesSlice.reducer;
