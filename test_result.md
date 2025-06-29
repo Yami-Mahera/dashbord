@@ -179,7 +179,8 @@ test_plan:
   current_focus:
     - "Backend testing for dashboard data endpoints"
     - "Frontend testing for new TypeScript components and charts"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Basic API endpoints for dashboard data"
   test_all: true
   test_priority: "high_first"
 
