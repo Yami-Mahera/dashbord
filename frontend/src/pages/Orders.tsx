@@ -343,11 +343,11 @@ const OrdersPage = () => {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {order.orderNumber}
                           </h3>
-                          <Badge className={statusConfig.color}>
+                          <Badge variant="default" className={statusConfig.color}>
                             <StatusIcon className="w-3 h-3 mr-1" />
                             {statusConfig.label}
                           </Badge>
-                          <Badge className={priorityConfig.color}>
+                          <Badge variant="default" className={priorityConfig.color}>
                             {priorityConfig.label}
                           </Badge>
                         </div>
