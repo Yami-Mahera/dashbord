@@ -36,6 +36,90 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Dashboard Models
+class KPI(BaseModel):
+    totalOrders: int
+    pendingOrders: int
+    totalSuppliers: int
+    lowStockItems: int
+    averageDeliveryTime: float
+    serviceLevel: float
+    costSavings: float
+    onTimeDelivery: float
+
+class OrdersTrendData(BaseModel):
+    month: str
+    orders: int
+    amount: int
+    budget: int
+
+class SupplierPerformanceData(BaseModel):
+    name: str
+    onTimeDelivery: float
+    qualityScore: float
+    costEfficiency: float
+    totalOrders: int
+    reliability: str
+
+class CostAnalysisData(BaseModel):
+    category: str
+    budget: int
+    spent: int
+    forecast: int
+
+class StockLevelData(BaseModel):
+    name: str
+    category: str
+    current: int
+    min: int
+    max: int
+    optimal: int
+    status: str
+
+class ChartsData(BaseModel):
+    ordersTrend: List[OrdersTrendData]
+    supplierPerformance: List[SupplierPerformanceData]
+    costAnalysis: List[CostAnalysisData]
+    stockLevels: List[StockLevelData]
+
+class Activity(BaseModel):
+    id: int
+    type: str
+    title: str
+    message: str
+    timestamp: str
+    priority: str
+    user: Dict[str, Any]
+
+class Alert(BaseModel):
+    id: str
+    type: str
+    title: str
+    message: str
+    priority: str
+    read: bool
+    createdAt: str
+
+class Supplier(BaseModel):
+    id: str
+    name: str
+    category: str
+    isActive: bool
+    totalOrders: int
+    totalAmount: float
+    averageDeliveryTime: float
+    onTimeDeliveryRate: float
+    qualityRating: float
+    performanceScore: Optional[float] = None
+
+class DashboardData(BaseModel):
+    kpis: KPI
+    charts: ChartsData
+    recentActivities: List[Activity]
+    criticalAlerts: List[Alert]
+    topSuppliers: List[Supplier]
+    lastUpdated: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
