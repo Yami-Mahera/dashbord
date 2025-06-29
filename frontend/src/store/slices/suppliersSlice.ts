@@ -187,7 +187,7 @@ const suppliersSlice = createSlice({
       })
       .addCase(fetchSupplierById.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || "Erreur lors de la récupération";
+        state.error = action.payload as string || "Erreur lors de la récupération";
       })
 
       // Create supplier
@@ -204,7 +204,7 @@ const suppliersSlice = createSlice({
       .addCase(createSupplier.rejected, (state, action) => {
         state.isCreating = false;
 
-        state.error = action.payload || "Erreur lors de la création";
+        state.error = action.payload as string || "Erreur lors de la création";
       })
 
       // Update supplier
@@ -229,7 +229,7 @@ const suppliersSlice = createSlice({
       .addCase(updateSupplier.rejected, (state, action) => {
         state.isUpdating = false;
 
-        state.error = action.payload || "Erreur lors de la mise à jour";
+        state.error = action.payload as string || "Erreur lors de la mise à jour";
       })
 
       // Delete supplier
