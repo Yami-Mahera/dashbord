@@ -385,3 +385,10 @@ if __name__ == "__main__":
     performance_tests.addTest(TestBackendAPI('test_api_response_time'))
     
     unittest.TextTestRunner().run(performance_tests)
+    
+    # Run data validation tests
+    print("\n=== Running Data Validation Tests ===")
+    validation_tests = unittest.TestSuite()
+    validation_tests.addTest(TestBackendAPI('test_data_validation'))
+    
+    unittest.TextTestRunner().run(validation_tests)
