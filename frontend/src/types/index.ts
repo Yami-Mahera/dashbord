@@ -1,7 +1,7 @@
 // Types principaux pour l'application de tableau de bord
 
 export interface User {
-  id: string;
+  id: string | number;
   firstName: string;
   lastName: string;
   email: string;
