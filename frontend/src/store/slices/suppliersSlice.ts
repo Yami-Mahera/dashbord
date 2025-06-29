@@ -57,7 +57,10 @@ export const createSupplier = createAsyncThunk<
     const response = await suppliersAPI.create(supplierData);
 
     // Si l'API retourne { data: Supplier }, extraire data
-    return response.data || response;
+    if (response && typeof response === 'object' && 'data' in response) {
+      return (response as SupplierApiResponse).data;
+    }
+    return response as Supplier;
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message ||
