@@ -16,8 +16,6 @@ code {
         monospace;
 }
 
-
-
 @layer base {
   :root {
         --background: 0 0% 100%;
@@ -74,8 +72,6 @@ code {
     }
 }
 
-
-
 @layer base {
   * {
     @apply border-border;
@@ -83,4 +79,165 @@ code {
   body {
     @apply bg-background text-foreground;
     }
+}
+
+/* Custom animations and responsive improvements */
+@layer components {
+  /* Smooth transitions for all interactive elements */
+  .transition-all-smooth {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Custom gradient backgrounds */
+  .gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+
+  /* Custom shadow styles */
+  .shadow-card {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-card-hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  /* Modern card styles */
+  .modern-card {
+    @apply bg-white rounded-xl shadow-card border border-gray-100 overflow-hidden transition-all-smooth hover:shadow-card-hover hover:-translate-y-1;
+  }
+
+  /* Responsive grid improvements */
+  .responsive-grid {
+    @apply grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  .responsive-grid-2 {
+    @apply grid gap-6 grid-cols-1 lg:grid-cols-2;
+  }
+
+  /* Modern button variants */
+  .btn-modern {
+    @apply px-6 py-3 rounded-lg font-medium text-sm transition-all-smooth focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-gradient {
+    @apply btn-modern text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 focus:ring-blue-500;
+  }
+
+  /* Loading and skeleton styles */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  .loading-dots {
+    @apply inline-flex space-x-1;
+  }
+
+  .loading-dots div {
+    @apply w-2 h-2 bg-current rounded-full animate-bounce;
+  }
+
+  .loading-dots div:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  .loading-dots div:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+/* Custom animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Responsive breakpoint utilities */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    @apply hidden;
+  }
+  
+  .mobile-visible {
+    @apply block;
+  }
+}
+
+@media (min-width: 769px) {
+  .desktop-hidden {
+    @apply hidden;
+  }
+  
+  .desktop-visible {
+    @apply block;
+  }
 }
