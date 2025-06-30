@@ -119,9 +119,9 @@ export const fetchSupplierById = createAsyncThunk<
   try {
     const response = await suppliersAPI.getById(id);
     if (response && typeof response === 'object' && 'data' in response) {
-      return (response as SupplierApiResponse).data;
+      return (response as unknown as SupplierApiResponse).data;
     }
-    return response as Supplier;
+    return response as unknown as Supplier;
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message ||
