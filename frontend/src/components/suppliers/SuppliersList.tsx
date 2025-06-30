@@ -181,7 +181,7 @@ const SuppliersList: React.FC<SuppliersListProps> = ({
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={loadSuppliers}>
+          <Button variant="outline" size="sm" onClick={() => loadSuppliers()}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Actualiser
           </Button>
