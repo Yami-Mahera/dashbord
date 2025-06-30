@@ -29,7 +29,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { useSuppliers } from '../../hooks/useSuppliers';
 import { SupplierUtils } from '../../utils/supplierUtils';
-import { Supplier } from '../../types/supplier.types';
+import { Supplier, SupplierFilters } from '../../types/supplier.types';
 import {
   Search,
   Plus,
