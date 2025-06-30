@@ -91,7 +91,8 @@ const SuppliersList: React.FC<SuppliersListProps> = ({
     updateFilters({ search: value, page: 1 });
   };
 
-  const handleSort = (sortBy: "name" | "code" | "category" | "createdAt" | "onTimeDeliveryRate") => {
+  const handleSort = (sortBy: SupplierFilters['sortBy']) => {
+    if (!sortBy) return;
     const sortOrder = filters.sortBy === sortBy && filters.sortOrder === 'asc' ? 'desc' : 'asc';
     updateFilters({ sortBy, sortOrder });
   };
