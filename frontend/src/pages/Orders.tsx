@@ -494,7 +494,7 @@ const OrdersPage = () => {
                   {selectedOrder.items.map((item, index) => (
                     <div key={index} className="grid grid-cols-5 gap-4 p-3 border-t text-sm">
                       <span>{item.article.name}</span>
-                      <span>{item.quantity} {item.article.unit}</span>
+                      <span>{item.quantity} {item.article.unit || 'pièce'}</span>
                       <span>{formatCurrency(item.unitPrice)}</span>
                       <span>{formatCurrency(item.totalPrice)}</span>
                       <span className="text-gray-600">{item.notes || '-'}</span>
