@@ -58,9 +58,9 @@ export const createSupplier = createAsyncThunk<
 
     // Si l'API retourne { data: Supplier }, extraire data
     if (response && typeof response === 'object' && 'data' in response) {
-      return (response as SupplierApiResponse).data;
+      return (response as unknown as SupplierApiResponse).data;
     }
-    return response as Supplier;
+    return response as unknown as Supplier;
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message ||
