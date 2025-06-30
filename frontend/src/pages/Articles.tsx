@@ -14,7 +14,9 @@ import {
   AlertTriangle,
   BarChart3,
   Eye,
-  Download
+  Download,
+  DollarSign,
+  RefreshCw
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -49,7 +51,7 @@ const ArticlesPage = () => {
     category: '',
     subCategory: '',
     supplier: null,
-    price: '',
+    price: 0,
     currency: 'EUR',
     unit: 'pièce',
     minOrderQuantity: 1,
@@ -142,7 +144,7 @@ const ArticlesPage = () => {
       category: '',
       subCategory: '',
       supplier: null,
-      price: '',
+      price: 0,
       currency: 'EUR',
       unit: 'pièce',
       minOrderQuantity: 1,
@@ -293,7 +295,7 @@ const ArticlesPage = () => {
               <div>
                 <p className="text-sm text-gray-600">Valeur stock</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(articles.reduce((sum, a) => sum + a.stockValue, 0) / 1000)}k€
+                  {Math.round(articles.reduce((sum, a) => sum + (a.stockValue || 0), 0) / 1000)}k€
                 </p>
               </div>
               <DollarSign className="w-8 h-8 text-purple-500" />
@@ -374,7 +376,7 @@ const ArticlesPage = () => {
                         </div>
                         <CardTitle className="text-lg mt-2">{article.name}</CardTitle>
                         <CardDescription className="text-sm">
-                          {article.category} • {article.supplier.name}
+                          {article.category} • {article.supplier?.name || 'Aucun fournisseur'}
                         </CardDescription>
                       </div>
                       <DropdownMenu>
@@ -435,7 +437,7 @@ const ArticlesPage = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-gray-900">
-                          {Math.round(article.stockValue)}€
+                          {Math.round(article.stockValue || 0)}€
                         </p>
                         <p className="text-xs text-gray-500">valeur stock</p>
                       </div>

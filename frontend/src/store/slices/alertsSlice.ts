@@ -27,7 +27,7 @@ export const fetchAlerts = createAsyncThunk<any, any>(
 
 export const markAsRead = createAsyncThunk<any, any>(
   "alerts/markAsRead",
-  async ({ id }) => {
+  async (id) => {
     const response = await alertsAPI.markAsRead(id);
     return response;
   }
@@ -40,13 +40,17 @@ export const markAllAsRead = createAsyncThunk<void, void>(
   }
 );
 
-export const dismissAlert = createAsyncThunk<string, string>(
-  "alerts/dismissAlert",
+// Rename dismissAlert to deleteAlert to match component usage
+export const deleteAlert = createAsyncThunk<string, string>(
+  "alerts/deleteAlert",
   async (id) => {
     await alertsAPI.dismiss(id);
     return id;
   }
 );
+
+// Keep dismissAlert as alias for backward compatibility
+export const dismissAlert = deleteAlert;
 
 interface AlertsState {
   alerts: any[]; // Temporaire
@@ -54,6 +58,7 @@ interface AlertsState {
   error: string | null;
   unreadCount: number;
   criticalCount: number;
+  filters: AlertFilters; // Add filters to state
 }
 
 const initialState: AlertsState = {
@@ -62,6 +67,7 @@ const initialState: AlertsState = {
   error: null,
   unreadCount: 0,
   criticalCount: 0,
+  filters: {}, // Initialize filters
 };
 
 const alertsSlice = createSlice({
@@ -77,8 +83,8 @@ const alertsSlice = createSlice({
         state.criticalCount += 1;
       }
     },
-    setFilters: (state, action: PayloadAction<any>) => {
-      // Note: Les filtres seront gérés par le composant local
+    setFilters: (state, action: PayloadAction<AlertFilters>) => {
+      state.filters = { ...state.filters, ...action.payload };
     },
     clearError: (state) => {
       state.error = null;
@@ -113,7 +119,7 @@ const alertsSlice = createSlice({
         });
         state.unreadCount = 0;
       })
-      .addCase(dismissAlert.fulfilled, (state, action) => {
+      .addCase(deleteAlert.fulfilled, (state, action) => {
         const index = state.alerts.findIndex(a => a.id === action.payload);
         if (index !== -1) {
           const alert = state.alerts[index];

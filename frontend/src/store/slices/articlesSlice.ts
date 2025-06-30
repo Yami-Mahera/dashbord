@@ -9,6 +9,7 @@ interface ArticleFilters {
   status?: string;
   supplier?: string;
   stockLevel?: string;
+  lowStock?: boolean;
   [key: string]: any; // Temporaire
 }
 
@@ -62,6 +63,7 @@ interface ArticlesState {
   lowStockAlerts: any[]; // Temporaire
   isLoading: boolean;
   error: string | null;
+  filters: ArticleFilters; // Add filters to state
   pagination: {
     page: number;
     limit: number;
@@ -76,6 +78,7 @@ const initialState: ArticlesState = {
   lowStockAlerts: [],
   isLoading: false,
   error: null,
+  filters: {}, // Initialize filters
   pagination: {
     page: 1,
     limit: 20,
@@ -95,8 +98,8 @@ const articlesSlice = createSlice({
         article.currentStock = stock;
       }
     },
-    setFilters: (state, action: PayloadAction<any>) => {
-      // Note: Les filtres seront gérés par le composant local
+    setFilters: (state, action: PayloadAction<ArticleFilters>) => {
+      state.filters = { ...state.filters, ...action.payload };
     },
     clearError: (state) => {
       state.error = null;

@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
   const { kpis, charts, recentActivities, criticalAlerts, topSuppliers, isLoading } = useAppSelector(state => state.dashboard);
 
   useEffect(() => {
-    dispatch(fetchDashboardData());
+    dispatch(fetchDashboardData({}));
   }, [dispatch]);
 
   const kpiCards: KPICardProps[] = [
@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
     return 'Bonsoir';
   };
 
-  const getActivityIcon = (type: string): JSX.Element => {
+  const getActivityIcon = (type: string): React.ReactElement => {
     switch (type) {
       case 'order_created': return <ShoppingCart className="w-4 h-4" />;
       case 'order_approved': return <CheckCircle className="w-4 h-4" />;
