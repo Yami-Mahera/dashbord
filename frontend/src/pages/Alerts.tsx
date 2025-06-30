@@ -172,7 +172,7 @@ const AlertsPage = () => {
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
     const time = new Date(timestamp);
-    const diffInMinutes = Math.floor((now - time) / (1000 * 60));
+    const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 1) return 'À l\'instant';
     if (diffInMinutes < 60) return `il y a ${diffInMinutes}min`;
