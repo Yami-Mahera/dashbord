@@ -326,7 +326,7 @@ const AlertsPage = () => {
                 <SelectItem value="low">Faible</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filters.read || 'all'} onValueChange={(value) => handleFilterChange('read', value)}>
+            <Select value={filters.read?.toString() || 'all'} onValueChange={(value) => handleFilterChange('read', value === 'all' ? null : value === 'read')}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
