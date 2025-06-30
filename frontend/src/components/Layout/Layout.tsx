@@ -24,13 +24,14 @@ import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { logoutUser } from '../../store/slices/authSlice';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RootState, AppDispatch } from '../../store/store';
 
 const Layout = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useSelector(state => state.auth);
-  const { unreadCount } = useSelector(state => state.alerts);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { unreadCount } = useSelector((state: RootState) => state.alerts);
   
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
