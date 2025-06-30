@@ -85,7 +85,7 @@ export interface SupplierFilters {
   country?: string;
   page?: number;
   limit?: number;
-  sortBy?: "name" | "code" | "category" | "createdAt";
+  sortBy?: "name" | "code" | "category" | "createdAt" | "onTimeDeliveryRate";
   sortOrder?: "asc" | "desc";
 }
 
