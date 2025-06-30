@@ -26,7 +26,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { useToast } from '../hooks/use-toast';
-import { fetchAlerts, markAsRead, markAllAsRead, dismissAlert, setFilters } from '../store/slices/alertsSlice';
+import { fetchAlerts, markAsRead, markAllAsRead, deleteAlert, setFilters } from '../store/slices/alertsSlice';
 
 const AlertsPage = () => {
   const dispatch = useAppDispatch();
